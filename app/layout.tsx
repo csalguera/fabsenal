@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -27,7 +28,24 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <header className="top-nav-shell">
+          <nav className="top-nav" aria-label="Main navigation">
+            <Link href="/" className="top-nav-brand" aria-label="Fabsenal home">
+              Fabsenal
+            </Link>
+            <div className="top-nav-links">
+              <Link href="/" className="top-nav-link">
+                Home
+              </Link>
+              <Link href="/cards" className="top-nav-link">
+                Cards
+              </Link>
+            </div>
+          </nav>
+        </header>
+        {children}
+      </body>
     </html>
   );
 }
