@@ -102,6 +102,7 @@ export type CardSupertype =
   | "Reviled"
   | "Royal"
   | "Shadow";
+export type CardTrait = "Agent of Chaos";
 
 export interface Card {
   id: string;
@@ -113,9 +114,9 @@ export interface Card {
   intellect: number | null;
   life: number | null;
   types: CardType[];
-  subtypes: CardSubtype[];
+  subtypes: CardSubtype[] | null;
   supertypes: CardSupertype[] | "Generic";
-  traits: string[] | null;
+  traits: CardTrait[] | null;
   textBox: string;
   abilities: string[];
   imageUrl: string;
