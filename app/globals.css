@@ -70,6 +70,25 @@ body {
   color: #3b4a65;
 }
 
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-item-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .cards-section h2,
 .card-form h3 {
   margin: 0;
@@ -187,6 +206,10 @@ textarea:focus {
     transform 0.15s ease,
     filter 0.2s ease;
   width: fit-content;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn:hover {
@@ -267,5 +290,10 @@ img {
 
   .cards-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
