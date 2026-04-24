@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function CardsLayout({
   children,
 }: Readonly<{
@@ -10,14 +8,6 @@ export default function CardsLayout({
       <header className="hero-panel">
         <h1>Fabsenal</h1>
         <p>Flesh and Blood deckbuilding application</p>
-        <nav className="page-actions" aria-label="Card pages">
-          <Link href="/cards" className="btn btn-secondary">
-            View Cards
-          </Link>
-          <Link href="/cards/add" className="btn btn-primary">
-            Add Card
-          </Link>
-        </nav>
       </header>
       {children}
     </main>
