@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CardImage from "../card-image";
 import { getCards, normalizeFieldValue, type CardView } from "./_lib";
+import CardGalleryActions from "./card-gallery-actions";
 
 export default async function CardsPage() {
   const cards = await getCards();
@@ -26,29 +27,6 @@ export default async function CardsPage() {
             return (
               <li key={card.id} className="card-item">
                 <h3>{card.name}</h3>
-                <div className="card-meta">
-                  {[
-                    { label: "Pitch", value: card.pitch },
-                    { label: "Color", value: card.color },
-                    { label: "Power", value: card.power },
-                    { label: "Defense", value: card.defense },
-                    { label: "Intellect", value: card.intellect },
-                    { label: "Life", value: card.life },
-                    { label: "Types", value: card.types },
-                    { label: "Subtypes", value: card.subtypes },
-                    { label: "Supertypes", value: card.supertypes },
-                    { label: "Traits", value: card.traits },
-                    { label: "Text Box", value: card.textBox },
-                    { label: "Abilities", value: card.abilities },
-                  ].map((field) => {
-                    const displayValue = normalizeFieldValue(field.value);
-                    return displayValue ? (
-                      <p key={field.label}>
-                        {field.label}: {displayValue}
-                      </p>
-                    ) : null;
-                  })}
-                </div>
                 {imageSrc ? (
                   <CardImage
                     src={imageSrc}
@@ -57,14 +35,7 @@ export default async function CardsPage() {
                     height={300}
                   />
                 ) : null}
-                <div className="card-item-actions">
-                  <Link
-                    href={`/cards/${card.id}/edit`}
-                    className="btn btn-secondary"
-                  >
-                    Edit Card
-                  </Link>
-                </div>
+                <CardGalleryActions id={card.id} />
               </li>
             );
           })}
