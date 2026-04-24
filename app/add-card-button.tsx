@@ -51,7 +51,13 @@ const INITIAL_FORM_STATE: CardFormState = {
   useNoTraits: true,
 };
 
-export default function AddCardButton() {
+type AddCardButtonProps = {
+  successRedirectTo?: string;
+};
+
+export default function AddCardButton({
+  successRedirectTo,
+}: AddCardButtonProps) {
   const [formState, setFormState] = useState<CardFormState>(INITIAL_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -151,7 +157,11 @@ export default function AddCardButton() {
       setMessage("Card added.");
       setFormState(INITIAL_FORM_STATE);
       setImageFile(null);
-      router.refresh();
+      if (successRedirectTo) {
+        router.replace(successRedirectTo);
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       console.error("Failed to add card", error);
       setMessage("Unable to add card. Please try again.");
@@ -162,7 +172,6 @@ export default function AddCardButton() {
 
   return (
     <form onSubmit={handleAddCard} className="card-form">
-      <h3>Add Card</h3>
       <p className="field-row">
         <label htmlFor="name">Name </label>
         <input
