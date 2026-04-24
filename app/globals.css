@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4efe7;
+  --foreground: #1d2433;
+  --panel: rgba(255, 255, 255, 0.78);
+  --panel-border: rgba(32, 56, 94, 0.16);
+  --accent: #116466;
+  --accent-strong: #0e5f62;
+  --accent-soft: #d3efe7;
+  --danger: #b83d3d;
+  --input-bg: rgba(255, 255, 255, 0.95);
+  --shadow: 0 18px 44px rgba(23, 41, 74, 0.13);
 }
 
 @theme inline {
@@ -12,15 +20,252 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), "Avenir Next", "Segoe UI", sans-serif;
+  line-height: 1.45;
+  background-image:
+    radial-gradient(circle at 12% -18%, #ffe9cf 0%, transparent 40%),
+    radial-gradient(circle at 94% 12%, #d6f3ff 0%, transparent 35%),
+    linear-gradient(170deg, #f7f3ec 0%, #f0f5ff 100%);
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+  display: grid;
+  gap: 1.25rem;
+  animation: page-enter 0.45s ease-out;
+}
+
+.hero-panel,
+.add-card-panel,
+.cards-section,
+.card-item {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+  border-radius: 18px;
+  backdrop-filter: blur(9px);
+}
+
+.hero-panel,
+.add-card-panel,
+.cards-section {
+  padding: 1.2rem 1.35rem;
+}
+
+.hero-panel h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4.8vw, 2.85rem);
+  letter-spacing: -0.02em;
+}
+
+.hero-panel p {
+  margin: 0.45rem 0 0;
+  color: #3b4a65;
+}
+
+.cards-section h2,
+.card-form h3 {
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.empty-state {
+  margin: 0.8rem 0 0;
+  color: #425063;
+}
+
+.cards-grid {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card-item {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  animation: card-enter 0.35s ease-out;
+}
+
+.card-item h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.card-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.45rem 0.85rem;
+}
+
+.card-meta p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #30435b;
+}
+
+.card-form,
+.edit-panel {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.edit-panel {
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px dashed rgba(39, 66, 103, 0.22);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.edit-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.field-row {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field-row label {
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: #385071;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #c7d4e4;
+  border-radius: 10px;
+  background: var(--input-bg);
+  padding: 0.56rem 0.68rem;
+  font-size: 0.95rem;
+  color: inherit;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+select[multiple] {
+  min-height: 6.7rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, white 78%);
+}
+
+.card-actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.56rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.2s ease;
+  width: fit-content;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.btn:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-strong) 100%
+  );
+  color: #f8fffe;
+}
+
+.btn-secondary {
+  background: var(--accent-soft);
+  color: #1f4f52;
+}
+
+.btn-danger {
+  background: #f9e1e1;
+  color: var(--danger);
+}
+
+.form-message {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: #2f496e;
+}
+
+img {
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(29, 45, 75, 0.16);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    width: min(1120px, calc(100% - 1rem));
+    padding-top: 1rem;
+  }
+
+  .hero-panel,
+  .add-card-panel,
+  .cards-section {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
 }
