@@ -20,6 +20,7 @@ import {
 
 type CardActionsProps = {
   card: Partial<Card> & { id: string; name: string };
+  deleteRedirectTo?: string;
 };
 
 type CardEditState = ClassificationState & {
@@ -62,7 +63,10 @@ function initialStateFromCard(
   };
 }
 
-export default function CardActions({ card }: CardActionsProps) {
+export default function CardActions({
+  card,
+  deleteRedirectTo,
+}: CardActionsProps) {
   const router = useRouter();
   const [formState, setFormState] = useState<CardEditState>(
     initialStateFromCard(card),
@@ -187,7 +191,11 @@ export default function CardActions({ card }: CardActionsProps) {
       }
 
       setMessage("Card deleted.");
-      router.refresh();
+      if (deleteRedirectTo) {
+        router.replace(deleteRedirectTo);
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       console.error("Failed to delete card", error);
       setMessage("Unable to delete card.");
@@ -198,204 +206,201 @@ export default function CardActions({ card }: CardActionsProps) {
 
   return (
     <div className="card-actions">
-      <details className="edit-panel">
-        <summary>Edit Card</summary>
-        <p className="field-row">
-          <label htmlFor={`update-name-${id}`}>Name </label>
-          <input
-            id={`update-name-${id}`}
-            value={formState.name}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                name: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-pitch-${id}`}>Pitch </label>
-          <select
-            id={`update-pitch-${id}`}
-            value={formState.pitch}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                pitch: event.target.value as CardEditState["pitch"],
-              }))
-            }
-          >
-            <option value="">None</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-color-${id}`}>Color </label>
-          <select
-            id={`update-color-${id}`}
-            value={formState.color}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                color: event.target.value as CardEditState["color"],
-              }))
-            }
-          >
-            <option value="">None</option>
-            <option value="red">Red</option>
-            <option value="yellow">Yellow</option>
-            <option value="blue">Blue</option>
-          </select>
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-power-${id}`}>Power </label>
-          <input
-            id={`update-power-${id}`}
-            type="number"
-            value={formState.power}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                power: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-defense-${id}`}>Defense </label>
-          <input
-            id={`update-defense-${id}`}
-            type="number"
-            value={formState.defense}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                defense: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-intellect-${id}`}>Intellect </label>
-          <input
-            id={`update-intellect-${id}`}
-            type="number"
-            value={formState.intellect}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                intellect: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-life-${id}`}>Life </label>
-          <input
-            id={`update-life-${id}`}
-            type="number"
-            value={formState.life}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                life: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <CardClassificationFields
-          idPrefix={`update-${id}`}
-          state={{
-            types: formState.types,
-            subtypes: formState.subtypes,
-            useNoSubtypes: formState.useNoSubtypes,
-            supertypes: formState.supertypes,
-            useGenericSupertype: formState.useGenericSupertype,
-          }}
-          onChange={(next) =>
+      <p className="field-row">
+        <label htmlFor={`update-name-${id}`}>Name </label>
+        <input
+          id={`update-name-${id}`}
+          value={formState.name}
+          onChange={(event) =>
             setFormState((current) => ({
               ...current,
-              ...next,
+              name: event.target.value,
             }))
           }
         />
-        <p className="field-row">
-          <label htmlFor={`update-traits-${id}`}>
-            Traits (hold Cmd/Ctrl to select multiple, includes None)
-          </label>
-          <select
-            id={`update-traits-${id}`}
-            value={formState.useNoTraits ? ["__NONE__"] : formState.traits}
-            onChange={(event) => {
-              const values = getMultiSelectValues(event);
-              const selectedNone = values.includes("__NONE__");
-
-              setFormState((current) => ({
-                ...current,
-                useNoTraits: selectedNone,
-                traits: selectedNone ? [] : (values as CardTrait[]),
-              }));
-            }}
-            multiple
-          >
-            <option value="__NONE__">None</option>
-            {CARD_TRAIT_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-textbox-${id}`}>Text Box </label>
-          <input
-            id={`update-textbox-${id}`}
-            value={formState.textBox}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                textBox: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-abilities-${id}`}>
-            Abilities (comma-separated)
-          </label>
-          <input
-            id={`update-abilities-${id}`}
-            value={formState.abilities}
-            onChange={(event) =>
-              setFormState((current) => ({
-                ...current,
-                abilities: event.target.value,
-              }))
-            }
-          />
-        </p>
-        <p className="field-row">
-          <label htmlFor={`update-imageFile-${id}`}>
-            Replace Image (upload only)
-          </label>
-          <input
-            id={`update-imageFile-${id}`}
-            type="file"
-            accept="image/*"
-            onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-          />
-        </p>
-        <button
-          type="button"
-          onClick={handleUpdate}
-          disabled={isSubmitting}
-          className="btn btn-secondary"
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-pitch-${id}`}>Pitch </label>
+        <select
+          id={`update-pitch-${id}`}
+          value={formState.pitch}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              pitch: event.target.value as CardEditState["pitch"],
+            }))
+          }
         >
-          Update
-        </button>
-      </details>
+          <option value="">None</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-color-${id}`}>Color </label>
+        <select
+          id={`update-color-${id}`}
+          value={formState.color}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              color: event.target.value as CardEditState["color"],
+            }))
+          }
+        >
+          <option value="">None</option>
+          <option value="red">Red</option>
+          <option value="yellow">Yellow</option>
+          <option value="blue">Blue</option>
+        </select>
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-power-${id}`}>Power </label>
+        <input
+          id={`update-power-${id}`}
+          type="number"
+          value={formState.power}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              power: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-defense-${id}`}>Defense </label>
+        <input
+          id={`update-defense-${id}`}
+          type="number"
+          value={formState.defense}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              defense: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-intellect-${id}`}>Intellect </label>
+        <input
+          id={`update-intellect-${id}`}
+          type="number"
+          value={formState.intellect}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              intellect: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-life-${id}`}>Life </label>
+        <input
+          id={`update-life-${id}`}
+          type="number"
+          value={formState.life}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              life: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <CardClassificationFields
+        idPrefix={`update-${id}`}
+        state={{
+          types: formState.types,
+          subtypes: formState.subtypes,
+          useNoSubtypes: formState.useNoSubtypes,
+          supertypes: formState.supertypes,
+          useGenericSupertype: formState.useGenericSupertype,
+        }}
+        onChange={(next) =>
+          setFormState((current) => ({
+            ...current,
+            ...next,
+          }))
+        }
+      />
+      <p className="field-row">
+        <label htmlFor={`update-traits-${id}`}>
+          Traits (hold Cmd/Ctrl to select multiple, includes None)
+        </label>
+        <select
+          id={`update-traits-${id}`}
+          value={formState.useNoTraits ? ["__NONE__"] : formState.traits}
+          onChange={(event) => {
+            const values = getMultiSelectValues(event);
+            const selectedNone = values.includes("__NONE__");
+
+            setFormState((current) => ({
+              ...current,
+              useNoTraits: selectedNone,
+              traits: selectedNone ? [] : (values as CardTrait[]),
+            }));
+          }}
+          multiple
+        >
+          <option value="__NONE__">None</option>
+          {CARD_TRAIT_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-textbox-${id}`}>Text Box </label>
+        <input
+          id={`update-textbox-${id}`}
+          value={formState.textBox}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              textBox: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-abilities-${id}`}>
+          Abilities (comma-separated)
+        </label>
+        <input
+          id={`update-abilities-${id}`}
+          value={formState.abilities}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              abilities: event.target.value,
+            }))
+          }
+        />
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-imageFile-${id}`}>
+          Replace Image (upload only)
+        </label>
+        <input
+          id={`update-imageFile-${id}`}
+          type="file"
+          accept="image/*"
+          onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+        />
+      </p>
+      <button
+        type="button"
+        onClick={handleUpdate}
+        disabled={isSubmitting}
+        className="btn btn-secondary"
+      >
+        Update
+      </button>
       <button
         type="button"
         onClick={handleDelete}
