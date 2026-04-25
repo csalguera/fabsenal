@@ -230,8 +230,11 @@ export async function GET(request: Request) {
       return NextResponse.json(normalizeCardForResponse(card));
     }
 
-    const page = parsePage(params.get("page"));
-    const limit = parseLimit(params.get("limit"));
+    const returnAll = params.get("all") === "true";
+    const page = returnAll ? 1 : parsePage(params.get("page"));
+    const limit = returnAll
+      ? Number.MAX_SAFE_INTEGER
+      : parseLimit(params.get("limit"));
     const search = getNullableSingle(params, "search");
 
     const filters = {

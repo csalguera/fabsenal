@@ -81,3 +81,9 @@ export async function getCardsCollection() {
   const connectedClient = await clientPromise;
   return connectedClient.db(dbName).collection("cards");
 }
+
+export async function getDecksCollection() {
+  const clientPromise = getClientPromise();
+  const connectedClient = await clientPromise;
+  return connectedClient.db(dbName).collection("decks");
+}

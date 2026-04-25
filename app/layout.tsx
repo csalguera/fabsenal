@@ -41,6 +41,9 @@ export default function RootLayout({
               <Link href="/cards" className="top-nav-link">
                 Cards
               </Link>
+              <Link href="/decks" className="top-nav-link">
+                Decks
+              </Link>
             </div>
           </nav>
         </header>

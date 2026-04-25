@@ -140,6 +140,11 @@ body {
   margin-top: 1rem;
 }
 
+.deck-home-banner {
+  display: grid;
+  gap: 0.8rem;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -435,6 +440,75 @@ textarea:focus {
   gap: 0.65rem;
 }
 
+.deck-builder-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.deck-builder-panel {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.48);
+  border-radius: 12px;
+  border: 1px solid rgba(39, 66, 103, 0.18);
+}
+
+.deck-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.deck-card-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  border: 1px solid rgba(39, 66, 103, 0.14);
+  border-radius: 10px;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.deck-card-list-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #3e5068;
+}
+
+.deck-qty-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.deck-validation {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.deck-validation p {
+  margin: 0;
+}
+
+.deck-validation-error {
+  color: #9f2f2f;
+  font-size: 0.9rem;
+}
+
+.deck-validation-warning {
+  color: #8a6115;
+  font-size: 0.9rem;
+}
+
 .btn {
   border: 0;
   border-radius: 10px;
@@ -605,5 +679,9 @@ img {
 
   .card-view-layout {
     flex-direction: column;
+  }
+
+  .deck-builder-layout {
+    grid-template-columns: 1fr;
   }
 }

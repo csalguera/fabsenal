@@ -10,6 +10,9 @@ export default function Home() {
           <Link href="/cards" className="btn btn-primary">
             Browse Cards
           </Link>
+          <Link href="/decks/add" className="btn btn-secondary">
+            Build a Deck
+          </Link>
         </div>
       </header>
 
@@ -19,6 +22,17 @@ export default function Home() {
           Use the Cards page to view, add, edit, and manage your Flesh and Blood
           cards.
         </p>
+      </section>
+
+      <section className="cards-section deck-home-banner">
+        <h2>Start Building</h2>
+        <p className="empty-state">
+          Pick a format, select your hero, and build a legal inventory with
+          automatic copy-limit and format validation.
+        </p>
+        <Link href="/decks/add" className="btn btn-primary">
+          Create Deck
+        </Link>
       </section>
     </main>
   );
