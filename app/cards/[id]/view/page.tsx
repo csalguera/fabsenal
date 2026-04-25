@@ -40,6 +40,7 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
           {[
             { label: "Rarity", value: card.rarity },
             { label: "Pitch", value: card.pitch },
+            { label: "Cost", value: card.cost },
             { label: "Color", value: card.color },
             { label: "Power", value: card.power },
             { label: "Defense", value: card.defense },

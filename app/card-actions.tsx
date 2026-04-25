@@ -7,8 +7,6 @@ import type {
   CardColor,
   CardRarity,
   CardTrait,
-  CardClass,
-  CardTalent,
   PitchValue,
 } from "./api/cards/types/card";
 import CardClassificationFields, {
@@ -17,8 +15,6 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
-  CARD_CLASS_OPTIONS,
-  CARD_TALENT_OPTIONS,
   getMultiSelectValues,
   parseCommaSeparatedList,
   type PitchInputValue,
@@ -32,6 +28,7 @@ type CardActionsProps = {
 type CardEditState = ClassificationState & {
   name: string;
   pitch: PitchInputValue;
+  cost: string;
   color: "" | CardColor;
   power: string;
   defense: string;
@@ -51,6 +48,7 @@ function initialStateFromCard(
   return {
     name: card.name,
     pitch: card.pitch ? (String(card.pitch) as CardEditState["pitch"]) : "",
+    cost: card.cost != null ? String(card.cost) : "",
     color: card.color ?? "",
     power: card.power != null ? String(card.power) : "",
     defense: card.defense != null ? String(card.defense) : "",
@@ -133,6 +131,7 @@ export default function CardActions({
       id,
       name: formState.name.trim(),
       pitch: formState.pitch ? (Number(formState.pitch) as PitchValue) : null,
+      cost: formState.cost ? Number(formState.cost) : null,
       color: formState.color || null,
       power: formState.power ? Number(formState.power) : null,
       defense: formState.defense ? Number(formState.defense) : null,
@@ -239,6 +238,20 @@ export default function CardActions({
           <option value="2">2</option>
           <option value="3">3</option>
         </select>
+      </p>
+      <p className="field-row">
+        <label htmlFor={`update-cost-${id}`}>Cost </label>
+        <input
+          id={`update-cost-${id}`}
+          type="number"
+          value={formState.cost}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              cost: event.target.value,
+            }))
+          }
+        />
       </p>
       <p className="field-row">
         <label htmlFor={`update-color-${id}`}>Color </label>

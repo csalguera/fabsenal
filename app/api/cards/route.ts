@@ -48,6 +48,10 @@ function normalizeCardShape(
     normalized.pitch = card.pitch;
   }
 
+  if (typeof card.cost === "number") {
+    normalized.cost = card.cost;
+  }
+
   const normalizedColor = normalizeString(card.color);
   if (normalizedColor) {
     normalized.color = normalizedColor;

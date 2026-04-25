@@ -119,6 +119,7 @@ export interface Card {
   id: string;
   name: string;
   pitch: PitchValue | null;
+  cost: number | null;
   color: CardColor | null;
   power: number | null;
   defense: number | null;
