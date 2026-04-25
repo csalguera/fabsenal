@@ -36,6 +36,12 @@ const INLINE_TOKEN_MAP: InlineTokenMap = {
     width: 14,
     height: 14,
   },
+  "{untap}": {
+    src: "/images/untap.png",
+    alt: "Untap",
+    width: 14,
+    height: 14,
+  },
   "{life}": {
     src: "/images/life.png",
     alt: "Life",
