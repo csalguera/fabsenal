@@ -103,6 +103,15 @@ export type CardSupertype =
   | "Royal"
   | "Shadow";
 export type CardTrait = "Agent of Chaos";
+export type CardRarity =
+  | "Common"
+  | "Basic"
+  | "Promo"
+  | "Token"
+  | "Rare"
+  | "Super Rare"
+  | "Majestic"
+  | "Legendary";
 
 export interface Card {
   id: string;
@@ -120,4 +129,5 @@ export interface Card {
   textBox: string;
   abilities: string[];
   imageUrl: string;
+  rarity: CardRarity;
 }

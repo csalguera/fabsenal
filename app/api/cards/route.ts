@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCardsCollection } from "@/lib/mongodb";
 import type { Card } from "./types/card";
+import { CARD_RARITY_OPTIONS } from "../../card-form-shared";
+import type { CardRarity } from "./types/card";
 
 type CardDocument = Card & {
   _id: ObjectId;
@@ -107,6 +109,16 @@ function normalizeCardShape(
   const normalizedImageUrl = normalizeString(card.imageUrl);
   if (normalizedImageUrl) {
     normalized.imageUrl = normalizedImageUrl;
+  }
+
+  const normalizedRarity = normalizeString(card.rarity);
+  if (
+    normalizedRarity &&
+    CARD_RARITY_OPTIONS.includes(normalizedRarity as CardRarity)
+  ) {
+    normalized.rarity = normalizedRarity as CardRarity;
+  } else {
+    normalized.rarity = "Common";
   }
 
   return normalized;

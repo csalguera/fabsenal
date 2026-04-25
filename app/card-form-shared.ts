@@ -2,6 +2,7 @@ import type {
   CardTrait,
   CardSubtype,
   CardSupertype,
+  CardRarity,
   CardType,
 } from "./api/cards/types/card";
 
@@ -118,6 +119,17 @@ export const CARD_SUPERTYPE_OPTIONS: CardSupertype[] = [
 ];
 
 export const CARD_TRAIT_OPTIONS: CardTrait[] = ["Agent of Chaos"];
+
+export const CARD_RARITY_OPTIONS: CardRarity[] = [
+  "Common",
+  "Basic",
+  "Promo",
+  "Token",
+  "Rare",
+  "Super Rare",
+  "Majestic",
+  "Legendary",
+];
 
 export function parseCommaSeparatedList(value: string) {
   return value

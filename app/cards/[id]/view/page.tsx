@@ -38,6 +38,7 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
 
         <div className="card-view-data">
           {[
+            { label: "Rarity", value: card.rarity },
             { label: "Pitch", value: card.pitch },
             { label: "Color", value: card.color },
             { label: "Power", value: card.power },

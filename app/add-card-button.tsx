@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type {
   Card,
   CardColor,
+  CardRarity,
   CardTrait,
   PitchValue,
 } from "./api/cards/types/card";
@@ -12,6 +13,7 @@ import CardClassificationFields, {
   type ClassificationState,
 } from "./card-classification-fields";
 import {
+  CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
   parseCommaSeparatedList,
   getMultiSelectValues,
@@ -26,6 +28,7 @@ type CardFormState = ClassificationState & {
   defense: string;
   intellect: string;
   life: string;
+  rarity: CardRarity;
   textBox: string;
   abilities: string;
   traits: CardTrait[];
@@ -40,6 +43,7 @@ const INITIAL_FORM_STATE: CardFormState = {
   defense: "",
   intellect: "",
   life: "",
+  rarity: "Common",
   types: ["Action"],
   subtypes: [],
   useNoSubtypes: true,
@@ -127,6 +131,7 @@ export default function AddCardButton({
       defense: formState.defense ? Number(formState.defense) : null,
       intellect: formState.intellect ? Number(formState.intellect) : null,
       life: formState.life ? Number(formState.life) : null,
+      rarity: formState.rarity,
       types: formState.types,
       subtypes: formState.useNoSubtypes ? null : formState.subtypes,
       supertypes: formState.useGenericSupertype
@@ -283,6 +288,27 @@ export default function AddCardButton({
             }))
           }
         />
+      </p>
+
+      <p className="field-row">
+        <label htmlFor="rarity">Rarity </label>
+        <select
+          id="rarity"
+          value={formState.rarity}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              rarity: event.target.value as CardRarity,
+            }))
+          }
+          required
+        >
+          {CARD_RARITY_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       </p>
 
       <CardClassificationFields

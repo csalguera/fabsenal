@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type {
   Card,
   CardColor,
+  CardRarity,
   CardTrait,
   PitchValue,
 } from "./api/cards/types/card";
@@ -12,6 +13,7 @@ import CardClassificationFields, {
   type ClassificationState,
 } from "./card-classification-fields";
 import {
+  CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
   getMultiSelectValues,
   parseCommaSeparatedList,
@@ -31,6 +33,7 @@ type CardEditState = ClassificationState & {
   defense: string;
   intellect: string;
   life: string;
+  rarity: CardRarity;
   traits: CardTrait[];
   useNoTraits: boolean;
   textBox: string;
@@ -49,6 +52,7 @@ function initialStateFromCard(
     defense: card.defense != null ? String(card.defense) : "",
     intellect: card.intellect != null ? String(card.intellect) : "",
     life: card.life != null ? String(card.life) : "",
+    rarity: card.rarity ?? "Common",
     types: card.types ?? ["Action"],
     subtypes: card.subtypes ?? [],
     useNoSubtypes: !card.subtypes || card.subtypes.length === 0,
@@ -135,6 +139,7 @@ export default function CardActions({
       defense: formState.defense ? Number(formState.defense) : null,
       intellect: formState.intellect ? Number(formState.intellect) : null,
       life: formState.life ? Number(formState.life) : null,
+      rarity: formState.rarity,
       types: formState.types,
       subtypes: formState.useNoSubtypes ? null : formState.subtypes,
       supertypes: formState.useGenericSupertype
@@ -311,6 +316,28 @@ export default function CardActions({
           }
         />
       </p>
+
+      <p className="field-row">
+        <label htmlFor={`update-rarity-${id}`}>Rarity </label>
+        <select
+          id={`update-rarity-${id}`}
+          value={formState.rarity}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              rarity: event.target.value as CardRarity,
+            }))
+          }
+          required
+        >
+          {CARD_RARITY_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </p>
+
       <CardClassificationFields
         idPrefix={`update-${id}`}
         state={{

@@ -27,6 +27,7 @@ export default async function CardsPage() {
             return (
               <li key={card.id} className="card-item">
                 <h3>{card.name}</h3>
+                <p>Rarity: {card.rarity ?? "Common"}</p>
                 {imageSrc ? (
                   <CardImage
                     src={imageSrc}
