@@ -36,6 +36,12 @@ const INLINE_TOKEN_MAP: InlineTokenMap = {
     width: 14,
     height: 14,
   },
+  "{life}": {
+    src: "/images/life.png",
+    alt: "Life",
+    width: 14,
+    height: 14,
+  },
 };
 
 export default async function ViewCardPage({ params }: ViewCardPageProps) {
