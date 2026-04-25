@@ -214,6 +214,32 @@ function normalizeCardForResponse(document: CardDocument) {
   return normalizeCardShape(card, _id.toString());
 }
 
+function getSearchableCardText(card: CardsResponseCard) {
+  return [
+    card.id,
+    card.name,
+    card.rarity,
+    card.color,
+    card.textBox,
+    card.imageUrl,
+    card.pitch,
+    card.cost,
+    card.power,
+    card.defense,
+    card.intellect,
+    card.life,
+    ...(card.types ?? []),
+    ...(card.subtypes ?? []),
+    ...(card.talent ?? []),
+    ...(card.class ?? []),
+    ...(card.traits ?? []),
+    ...(card.abilities ?? []),
+  ]
+    .filter((value) => value != null)
+    .map((value) => String(value).toLowerCase())
+    .join(" ");
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams: params } = new URL(request.url);
@@ -264,7 +290,10 @@ export async function GET(request: Request) {
 
     const filteredCards = normalizedCards
       .filter((card) => {
-        if (search && !includesIgnoreCase(card.name, search)) {
+        if (
+          search &&
+          !getSearchableCardText(card).includes(search.toLowerCase())
+        ) {
           return false;
         }
 

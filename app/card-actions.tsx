@@ -46,7 +46,8 @@ function initialStateFromCard(
 ): CardEditState {
   return {
     name: card.name,
-    pitch: card.pitch ? (String(card.pitch) as CardEditState["pitch"]) : "",
+    pitch:
+      card.pitch != null ? (String(card.pitch) as CardEditState["pitch"]) : "0",
     cost: card.cost != null ? String(card.cost) : "",
     color: card.color ?? "",
     power: card.power != null ? String(card.power) : "",
@@ -264,7 +265,7 @@ export default function CardActions({
             }))
           }
         >
-          <option value="">None</option>
+          <option value="0">0</option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>

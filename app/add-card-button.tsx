@@ -37,7 +37,7 @@ type CardFormState = ClassificationState & {
 
 const INITIAL_FORM_STATE: CardFormState = {
   name: "",
-  pitch: "",
+  pitch: "0",
   cost: "0",
   color: "",
   power: "",
@@ -228,7 +228,7 @@ export default function AddCardButton({
             }))
           }
         >
-          <option value="">None</option>
+          <option value="0">0</option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>

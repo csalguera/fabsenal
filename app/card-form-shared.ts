@@ -7,7 +7,7 @@ import type {
   CardType,
 } from "./api/cards/types/card";
 
-export type PitchInputValue = "" | "1" | "2" | "3";
+export type PitchInputValue = "0" | "1" | "2" | "3";
 
 export const DEFAULT_CARD_IMAGE_URL = "/file.svg";
 

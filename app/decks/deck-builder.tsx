@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Card } from "../api/cards/types/card";
+import CardImage from "../card-image";
 import {
   getCopyLimitForCard,
   getUniqueCardKey,
@@ -85,6 +86,42 @@ function withQuantity(
 
 function byName(a: Card, b: Card) {
   return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+}
+
+function getSearchableCardText(card: Card) {
+  return [
+    card.id,
+    card.name,
+    card.rarity,
+    card.color,
+    card.textBox,
+    card.imageUrl,
+    card.pitch,
+    card.cost,
+    card.power,
+    card.defense,
+    card.intellect,
+    card.life,
+    ...(card.types ?? []),
+    ...(card.subtypes ?? []),
+    ...(card.talent ?? []),
+    ...(card.class ?? []),
+    ...(card.traits ?? []),
+    ...(card.abilities ?? []),
+  ]
+    .filter((value) => value != null)
+    .map((value) => String(value).toLowerCase())
+    .join(" ");
+}
+
+function getCardSubtitle(card: Card) {
+  const parts = [
+    card.color ? `Color: ${card.color}` : null,
+    card.rarity ? `Rarity: ${card.rarity}` : null,
+    card.types.length > 0 ? card.types.join(", ") : null,
+  ].filter(Boolean);
+
+  return parts.join(" | ");
 }
 
 export default function DeckBuilder({ deckId }: DeckBuilderProps) {
@@ -207,7 +244,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
     return cards
       .filter((card) => isCardAllowedForDeck(card, heroCard, deck.format))
       .filter((card) =>
-        search ? card.name.toLowerCase().includes(search) : true,
+        search ? getSearchableCardText(card).includes(search) : true,
       )
       .sort(byName);
   }, [cards, heroCard, deck.format, cardSearch]);
@@ -271,6 +308,22 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
       };
     });
   };
+
+  const canIncrement = (card: Card) => {
+    if (isTokenCard(card)) {
+      return true;
+    }
+
+    const maxCopies = getCopyLimitForCard(card, deck.format);
+    if (!Number.isFinite(maxCopies)) {
+      return true;
+    }
+
+    const currentUniqueCopies = getUniqueCopies(deck.cards, cardsById, card);
+    return currentUniqueCopies < maxCopies;
+  };
+
+  const canDecrement = (card: Card) => countForCard(deck.cards, card.id) > 0;
 
   const handleSave = async () => {
     if (!deck.name.trim()) {
@@ -340,193 +393,285 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
         <h2>{deckId ? "Edit Deck" : "Create Deck"}</h2>
       </div>
 
-      <div className="deck-builder-layout">
-        <div className="deck-builder-panel">
-          <p className="field-row">
-            <label htmlFor="deck-name">Deck Name</label>
-            <input
-              id="deck-name"
-              value={deck.name}
-              onChange={(event) =>
-                setDeck((current) => ({ ...current, name: event.target.value }))
-              }
-            />
-          </p>
+      <div className="deck-format-chooser">
+        <button
+          type="button"
+          className={`deck-format-banner${deck.format === "silver-age" ? " deck-format-banner-active" : ""}`}
+          onClick={() =>
+            setDeck((current) => ({
+              ...current,
+              format: "silver-age",
+              heroCardId: "",
+              cards: [],
+            }))
+          }
+        >
+          <strong>Silver Age</strong>
+          <span>
+            Young / Pit-Fighter heroes, 2 copies, 55 inventory, 40 deck
+          </span>
+        </button>
+        <button
+          type="button"
+          className={`deck-format-banner${deck.format === "classic-constructed" ? " deck-format-banner-active" : ""}`}
+          onClick={() =>
+            setDeck((current) => ({
+              ...current,
+              format: "classic-constructed",
+              heroCardId: "",
+              cards: [],
+            }))
+          }
+        >
+          <strong>Classic Constructed</strong>
+          <span>Adult heroes, 3 copies, 80 inventory, 60 deck</span>
+        </button>
+      </div>
 
-          <p className="field-row">
-            <label htmlFor="deck-format">Format</label>
-            <select
-              id="deck-format"
-              value={deck.format}
-              onChange={(event) =>
-                setDeck((current) => ({
-                  ...current,
-                  format: event.target.value as DeckFormat,
-                  heroCardId: "",
-                  cards: [],
-                }))
-              }
-            >
-              <option value="silver-age">Silver Age</option>
-              <option value="classic-constructed">Classic Constructed</option>
-            </select>
-          </p>
-
-          <p className="field-row">
-            <label htmlFor="deck-hero">Hero</label>
-            <select
-              id="deck-hero"
-              value={deck.heroCardId}
-              onChange={(event) =>
-                setDeck((current) => ({
-                  ...current,
-                  heroCardId: event.target.value,
-                  cards: [],
-                }))
-              }
-            >
-              <option value="">Select a hero</option>
-              {heroes.map((hero) => (
-                <option key={hero.id} value={hero.id}>
-                  {hero.name}
-                </option>
-              ))}
-            </select>
-          </p>
-
-          {userId ? (
-            <p className="field-row">
-              <label htmlFor="deck-visibility">Visibility</label>
-              <select
-                id="deck-visibility"
-                value={deck.visibility}
-                onChange={(event) =>
+      <div className="deck-hero-stage">
+        <h3>Select Hero</h3>
+        <div className="deck-image-grid">
+          {heroes.map((hero) => {
+            const isActive = deck.heroCardId === hero.id;
+            return (
+              <button
+                key={hero.id}
+                type="button"
+                className={`deck-image-card${isActive ? " deck-image-card-active" : ""}`}
+                onClick={() =>
                   setDeck((current) => ({
                     ...current,
-                    visibility: event.target.value as DeckVisibility,
+                    heroCardId: hero.id,
+                    cards: [],
                   }))
                 }
               >
-                <option value="private">Private</option>
-                <option value="public">Public</option>
-              </select>
-            </p>
-          ) : (
-            <p className="form-message">
-              Guest mode: deck is stored in your browser for 24 hours.
-            </p>
-          )}
-
-          <p className="field-row">
-            <label htmlFor="card-search">Search Legal Cards</label>
-            <input
-              id="card-search"
-              value={cardSearch}
-              onChange={(event) => setCardSearch(event.target.value)}
-              placeholder="Search by card name"
-            />
-          </p>
-
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? "Saving..." : "Save Deck"}
-          </button>
-
-          {status ? <p className="form-message">{status}</p> : null}
-
-          <div className="deck-validation">
-            <p>
-              Inventory: {deckValidation.counts.inventory} | Main Deck:{" "}
-              {deckValidation.counts.mainDeck}
-            </p>
-            {deckValidation.errors.map((error) => (
-              <p key={error} className="deck-validation-error">
-                {error}
-              </p>
-            ))}
-            {deckValidation.warnings.map((warning) => (
-              <p key={warning} className="deck-validation-warning">
-                {warning}
-              </p>
-            ))}
-          </div>
-        </div>
-
-        <div className="deck-builder-panel">
-          <h3>Legal Equipment / Weapons / Tokens</h3>
-          <ul className="deck-card-list">
-            {equipmentAndWeapons.map((card) => {
-              const qty = countForCard(deck.cards, card.id);
-              return (
-                <li key={card.id} className="deck-card-list-item">
-                  <div>
-                    <strong>{card.name}</strong>
-                    <p>{card.types.join(", ")}</p>
-                  </div>
-                  <div className="deck-qty-controls">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => updateQuantity(card, Math.max(0, qty - 1))}
-                    >
-                      -
-                    </button>
-                    <span>{qty}</span>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => updateQuantity(card, qty + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-
-          <h3>Main Deck Cards</h3>
-          <ul className="deck-card-list">
-            {mainDeckCards.map((card) => {
-              const qty = countForCard(deck.cards, card.id);
-              return (
-                <li key={card.id} className="deck-card-list-item">
-                  <div>
-                    <strong>
-                      {card.name}
-                      {card.color ? ` (${card.color})` : ""}
-                    </strong>
-                    <p>
-                      {card.types.join(", ")} | {card.rarity}
-                    </p>
-                  </div>
-                  <div className="deck-qty-controls">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => updateQuantity(card, Math.max(0, qty - 1))}
-                    >
-                      -
-                    </button>
-                    <span>{qty}</span>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => updateQuantity(card, qty + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                <div className="deck-image-card-media">
+                  <CardImage
+                    src={hero.imageUrl || "/file.svg"}
+                    alt={hero.name}
+                    width={180}
+                    height={260}
+                    className="deck-image"
+                  />
+                </div>
+                <div className="deck-image-card-body">
+                  <strong>{hero.name}</strong>
+                  <span>{getCardSubtitle(hero)}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {heroCard ? (
+        <div className="deck-builder-layout">
+          <div className="deck-builder-panel">
+            <p className="field-row">
+              <label htmlFor="deck-name">Deck Name</label>
+              <input
+                id="deck-name"
+                value={deck.name}
+                onChange={(event) =>
+                  setDeck((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
+                }
+              />
+            </p>
+
+            {userId ? (
+              <p className="field-row">
+                <label htmlFor="deck-visibility">Visibility</label>
+                <select
+                  id="deck-visibility"
+                  value={deck.visibility}
+                  onChange={(event) =>
+                    setDeck((current) => ({
+                      ...current,
+                      visibility: event.target.value as DeckVisibility,
+                    }))
+                  }
+                >
+                  <option value="private">Private</option>
+                  <option value="public">Public</option>
+                </select>
+              </p>
+            ) : (
+              <p className="form-message">
+                Guest mode: deck is stored in your browser for 24 hours.
+              </p>
+            )}
+
+            <p className="field-row">
+              <label htmlFor="card-search">Search Legal Cards</label>
+              <input
+                id="card-search"
+                value={cardSearch}
+                onChange={(event) => setCardSearch(event.target.value)}
+                placeholder="Search any card field"
+              />
+            </p>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save Deck"}
+            </button>
+
+            {status ? <p className="form-message">{status}</p> : null}
+
+            <div className="deck-validation">
+              <p>
+                Inventory: {deckValidation.counts.inventory} | Main Deck:{" "}
+                {deckValidation.counts.mainDeck}
+              </p>
+              {deckValidation.errors.map((error) => (
+                <p key={error} className="deck-validation-error">
+                  {error}
+                </p>
+              ))}
+              {deckValidation.warnings.map((warning) => (
+                <p key={warning} className="deck-validation-warning">
+                  {warning}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="deck-builder-panel">
+            <h3>Hero + Equipment / Weapons / Tokens</h3>
+            <div className="deck-image-grid deck-image-grid-compact">
+              <div className="deck-image-card deck-image-card-static">
+                <div className="deck-image-card-media">
+                  <CardImage
+                    src={heroCard.imageUrl || "/file.svg"}
+                    alt={heroCard.name}
+                    width={180}
+                    height={260}
+                    className="deck-image"
+                  />
+                </div>
+                <div className="deck-image-card-body">
+                  <strong>{heroCard.name} (Hero)</strong>
+                  <span>{getCardSubtitle(heroCard)}</span>
+                </div>
+              </div>
+
+              {equipmentAndWeapons.map((card) => {
+                const qty = countForCard(deck.cards, card.id);
+                const canAdd = canIncrement(card);
+                const canRemove = canDecrement(card);
+
+                return (
+                  <div
+                    key={card.id}
+                    className="deck-image-card deck-image-card-static"
+                  >
+                    <div className="deck-image-card-media">
+                      <CardImage
+                        src={card.imageUrl || "/file.svg"}
+                        alt={card.name}
+                        width={180}
+                        height={260}
+                        className="deck-image"
+                      />
+                    </div>
+                    <div className="deck-image-card-body">
+                      <strong>{card.name}</strong>
+                      <span>{getCardSubtitle(card)}</span>
+                    </div>
+                    <div className="deck-image-card-actions">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() =>
+                          updateQuantity(card, Math.max(0, qty - 1))
+                        }
+                        disabled={!canRemove}
+                        aria-disabled={!canRemove}
+                      >
+                        Remove
+                      </button>
+                      <span>{qty}</span>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => updateQuantity(card, qty + 1)}
+                        disabled={!canAdd}
+                        aria-disabled={!canAdd}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <h3>Main Deck Cards</h3>
+            <div className="deck-image-grid deck-image-grid-compact">
+              {mainDeckCards.map((card) => {
+                const qty = countForCard(deck.cards, card.id);
+                const canAdd = canIncrement(card);
+                const canRemove = canDecrement(card);
+
+                return (
+                  <div
+                    key={card.id}
+                    className="deck-image-card deck-image-card-static"
+                  >
+                    <div className="deck-image-card-media">
+                      <CardImage
+                        src={card.imageUrl || "/file.svg"}
+                        alt={card.name}
+                        width={180}
+                        height={260}
+                        className="deck-image"
+                      />
+                    </div>
+                    <div className="deck-image-card-body">
+                      <strong>
+                        {card.name}
+                        {card.color ? ` (${card.color})` : ""}
+                      </strong>
+                      <span>{getCardSubtitle(card)}</span>
+                    </div>
+                    <div className="deck-image-card-actions">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() =>
+                          updateQuantity(card, Math.max(0, qty - 1))
+                        }
+                        disabled={!canRemove}
+                        aria-disabled={!canRemove}
+                      >
+                        Remove
+                      </button>
+                      <span>{qty}</span>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => updateQuantity(card, qty + 1)}
+                        disabled={!canAdd}
+                        aria-disabled={!canAdd}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -122,12 +122,12 @@ export default function CardsIndexControls({
         }}
       >
         <label className="cards-toolbar-field" htmlFor="cards-search">
-          Search Name
+          Search Cards
           <input
             id="cards-search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by card name"
+            placeholder="Search any card field"
           />
         </label>
 
@@ -209,6 +209,7 @@ export default function CardsIndexControls({
                 }
               >
                 <option value="">Any</option>
+                <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>

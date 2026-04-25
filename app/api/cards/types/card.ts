@@ -1,5 +1,5 @@
 export type CardColor = "red" | "yellow" | "blue";
-export type PitchValue = 1 | 2 | 3;
+export type PitchValue = 0 | 1 | 2 | 3;
 export type CardType =
   | "Action"
   | "Attack Reaction"

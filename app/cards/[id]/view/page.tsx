@@ -11,6 +11,15 @@ type ViewCardPageProps = {
   params: Promise<{ id: string }>;
 };
 
+const MAIN_DECK_TYPES = new Set([
+  "Action",
+  "Attack Reaction",
+  "Block",
+  "Instant",
+  "Defense Reaction",
+  "Resource",
+]);
+
 const INLINE_TOKEN_MAP: InlineTokenMap = {
   "{resource}": {
     src: "/images/resource.png",
@@ -59,6 +68,9 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
   }
 
   const imageSrc = normalizeFieldValue(card.imageUrl);
+  const shouldShowMainDeckStats = card.types?.some((type) =>
+    MAIN_DECK_TYPES.has(type),
+  );
 
   return (
     <section className="cards-section">
@@ -82,8 +94,12 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
         <div className="card-view-data">
           {[
             { label: "Rarity", value: card.rarity },
-            { label: "Pitch", value: card.pitch },
-            { label: "Cost", value: card.cost },
+            ...(shouldShowMainDeckStats
+              ? [
+                  { label: "Pitch", value: card.pitch },
+                  { label: "Cost", value: card.cost },
+                ]
+              : []),
             { label: "Color", value: card.color },
             { label: "Power", value: card.power },
             { label: "Defense", value: card.defense },
