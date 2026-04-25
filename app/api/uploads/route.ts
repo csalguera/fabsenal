@@ -9,7 +9,9 @@ const publicBaseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
 
 function getS3Client() {
   if (!region || !bucketName) {
-    throw new Error("S3 is not configured. Set AWS_REGION and AWS_S3_BUCKET_NAME.");
+    throw new Error(
+      "S3 is not configured. Set AWS_REGION and AWS_S3_BUCKET_NAME.",
+    );
   }
 
   return new S3Client({
@@ -24,9 +26,8 @@ function getS3Client() {
   });
 }
 
-function getFileExtension(fileName: string) {
-  const extensionIndex = fileName.lastIndexOf(".");
-  return extensionIndex >= 0 ? fileName.slice(extensionIndex) : "";
+function sanitizeFileName(fileName: string) {
+  return fileName.replace(/[\\/]+/g, "-").trim();
 }
 
 function buildObjectUrl(key: string) {
@@ -43,15 +44,20 @@ export async function POST(request: Request) {
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
+      return NextResponse.json({ error: "No file provided." }, { status: 400 });
+    }
+
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const safeFileName = sanitizeFileName(file.name);
+
+    if (!safeFileName) {
       return NextResponse.json(
-        { error: "No file provided." },
+        { error: "Invalid file name." },
         { status: 400 },
       );
     }
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const extension = getFileExtension(file.name);
-    const key = `cards/${Date.now()}-${crypto.randomUUID()}${extension}`;
+    const key = `cards/${safeFileName}`;
 
     const s3Client = getS3Client();
     await s3Client.send(
