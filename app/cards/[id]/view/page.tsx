@@ -30,6 +30,12 @@ const INLINE_TOKEN_MAP: InlineTokenMap = {
     width: 14,
     height: 14,
   },
+  "{tap}": {
+    src: "/images/tap.png",
+    alt: "Tap",
+    width: 14,
+    height: 14,
+  },
 };
 
 export default async function ViewCardPage({ params }: ViewCardPageProps) {
