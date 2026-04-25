@@ -7,6 +7,8 @@ import type {
   CardColor,
   CardRarity,
   CardTrait,
+  CardClass,
+  CardTalent,
   PitchValue,
 } from "./api/cards/types/card";
 import CardClassificationFields, {
@@ -15,6 +17,8 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
+  CARD_CLASS_OPTIONS,
+  CARD_TALENT_OPTIONS,
   parseCommaSeparatedList,
   getMultiSelectValues,
   type PitchInputValue,
@@ -47,8 +51,9 @@ const INITIAL_FORM_STATE: CardFormState = {
   types: ["Action"],
   subtypes: [],
   useNoSubtypes: true,
-  supertypes: [],
-  useGenericSupertype: true,
+  talent: [],
+  useNoTalent: true,
+  class: [],
   textBox: "",
   abilities: "",
   traits: [],
@@ -98,11 +103,6 @@ export default function AddCardButton({
       return;
     }
 
-    if (!formState.useGenericSupertype && formState.supertypes.length === 0) {
-      setMessage("Select at least one supertype or choose Generic.");
-      return;
-    }
-
     if (!imageFile) {
       setMessage("Image upload is required.");
       return;
@@ -134,9 +134,8 @@ export default function AddCardButton({
       rarity: formState.rarity,
       types: formState.types,
       subtypes: formState.useNoSubtypes ? null : formState.subtypes,
-      supertypes: formState.useGenericSupertype
-        ? "Generic"
-        : formState.supertypes,
+      talent: formState.useNoTalent ? null : formState.talent,
+      class: formState.class.length > 0 ? formState.class : null,
       traits:
         formState.useNoTraits || formState.traits.length === 0
           ? null
@@ -317,8 +316,9 @@ export default function AddCardButton({
           types: formState.types,
           subtypes: formState.subtypes,
           useNoSubtypes: formState.useNoSubtypes,
-          supertypes: formState.supertypes,
-          useGenericSupertype: formState.useGenericSupertype,
+          talent: formState.talent,
+          useNoTalent: formState.useNoTalent,
+          class: formState.class,
         }}
         onChange={(next) =>
           setFormState((current) => ({

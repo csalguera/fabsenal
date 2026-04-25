@@ -7,6 +7,8 @@ import type {
   CardColor,
   CardRarity,
   CardTrait,
+  CardClass,
+  CardTalent,
   PitchValue,
 } from "./api/cards/types/card";
 import CardClassificationFields, {
@@ -15,6 +17,8 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
+  CARD_CLASS_OPTIONS,
+  CARD_TALENT_OPTIONS,
   getMultiSelectValues,
   parseCommaSeparatedList,
   type PitchInputValue,
@@ -56,9 +60,9 @@ function initialStateFromCard(
     types: card.types ?? ["Action"],
     subtypes: card.subtypes ?? [],
     useNoSubtypes: !card.subtypes || card.subtypes.length === 0,
-    supertypes:
-      card.supertypes === "Generic" || !card.supertypes ? [] : card.supertypes,
-    useGenericSupertype: card.supertypes === "Generic" || !card.supertypes,
+    talent: card.talent ?? [],
+    useNoTalent: !card.talent || card.talent.length === 0,
+    class: card.class ?? [],
     traits: card.traits ?? [],
     useNoTraits: !card.traits || card.traits.length === 0,
     textBox: card.textBox ?? "",
@@ -109,11 +113,6 @@ export default function CardActions({
       return;
     }
 
-    if (!formState.useGenericSupertype && formState.supertypes.length === 0) {
-      setMessage("At least one supertype is required unless Generic.");
-      return;
-    }
-
     setIsSubmitting(true);
     setMessage(null);
 
@@ -142,9 +141,8 @@ export default function CardActions({
       rarity: formState.rarity,
       types: formState.types,
       subtypes: formState.useNoSubtypes ? null : formState.subtypes,
-      supertypes: formState.useGenericSupertype
-        ? "Generic"
-        : formState.supertypes,
+      talent: formState.useNoTalent ? null : formState.talent,
+      class: formState.class.length > 0 ? formState.class : null,
       traits:
         formState.useNoTraits || formState.traits.length === 0
           ? null
@@ -344,8 +342,9 @@ export default function CardActions({
           types: formState.types,
           subtypes: formState.subtypes,
           useNoSubtypes: formState.useNoSubtypes,
-          supertypes: formState.supertypes,
-          useGenericSupertype: formState.useGenericSupertype,
+          talent: formState.talent,
+          useNoTalent: formState.useNoTalent,
+          class: formState.class,
         }}
         onChange={(next) =>
           setFormState((current) => ({

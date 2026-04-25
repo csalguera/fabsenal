@@ -1,11 +1,13 @@
 import type {
   CardSubtype,
-  CardSupertype,
+  CardClass,
+  CardTalent,
   CardType,
 } from "./api/cards/types/card";
 import {
   CARD_SUBTYPE_OPTIONS,
-  CARD_SUPERTYPE_OPTIONS,
+  CARD_CLASS_OPTIONS,
+  CARD_TALENT_OPTIONS,
   CARD_TYPE_OPTIONS,
   getMultiSelectValues,
 } from "./card-form-shared";
@@ -14,8 +16,9 @@ export type ClassificationState = {
   types: CardType[];
   subtypes: CardSubtype[];
   useNoSubtypes: boolean;
-  supertypes: CardSupertype[];
-  useGenericSupertype: boolean;
+  talent: CardTalent[];
+  useNoTalent: boolean;
+  class: CardClass[];
 };
 
 type CardClassificationFieldsProps = {
@@ -83,26 +86,51 @@ export default function CardClassificationFields({
       </p>
 
       <p className="field-row">
-        <label htmlFor={`${idPrefix}-supertypes`}>
-          Supertypes (multiple, includes Generic)
+        <label htmlFor={`${idPrefix}-talent`}>
+          Talent (multiple, includes None)
         </label>
         <select
-          id={`${idPrefix}-supertypes`}
+          id={`${idPrefix}-talent`}
           multiple
-          value={state.useGenericSupertype ? ["__GENERIC__"] : state.supertypes}
+          value={state.useNoTalent ? ["__NONE__"] : state.talent}
           onChange={(event) => {
             const values = getMultiSelectValues(event);
-            const selectedGeneric = values.includes("__GENERIC__");
+            const selectedNone = values.includes("__NONE__");
             onChange({
               ...state,
-              useGenericSupertype: selectedGeneric,
-              supertypes: selectedGeneric ? [] : (values as CardSupertype[]),
+              useNoTalent: selectedNone,
+              talent: selectedNone ? [] : (values as CardTalent[]),
             });
           }}
-          required
+          disabled={state.class.includes("Generic")}
         >
-          <option value="__GENERIC__">Generic</option>
-          {CARD_SUPERTYPE_OPTIONS.map((option) => (
+          <option value="__NONE__">None</option>
+          {CARD_TALENT_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </p>
+
+      <p className="field-row">
+        <label htmlFor={`${idPrefix}-class`}>
+          Class (hold Cmd/Ctrl to select multiple, optional - includes Generic)
+        </label>
+        <select
+          id={`${idPrefix}-class`}
+          multiple
+          value={state.class}
+          onChange={(event) => {
+            const values = getMultiSelectValues(event) as CardClass[];
+            onChange({
+              ...state,
+              class: values,
+              talent: values.includes("Generic") ? [] : state.talent,
+            });
+          }}
+        >
+          {CARD_CLASS_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>

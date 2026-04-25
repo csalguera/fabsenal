@@ -72,7 +72,8 @@ export type CardSubtype =
   | "Trap"
   | "Wrench"
   | "Young";
-export type CardSupertype =
+export type CardClass =
+  | "Generic"
   | "Adjudicator"
   | "Assassin"
   | "Bard"
@@ -89,7 +90,8 @@ export type CardSupertype =
   | "Shapeshifter"
   | "Thief"
   | "Warrior"
-  | "Wizard"
+  | "Wizard";
+export type CardTalent =
   | "Chaos"
   | "Draconic"
   | "Earth"
@@ -124,7 +126,8 @@ export interface Card {
   life: number | null;
   types: CardType[];
   subtypes: CardSubtype[] | null;
-  supertypes: CardSupertype[] | "Generic";
+  talent: CardTalent[] | null;
+  class: CardClass[] | null;
   traits: CardTrait[] | null;
   textBox: string;
   abilities: string[];

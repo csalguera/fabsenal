@@ -79,16 +79,22 @@ function normalizeCardShape(
     normalized.subtypes = normalizedSubtypes;
   }
 
-  if (Array.isArray(card.supertypes)) {
-    const normalizedSupertypes = normalizeStringArray(card.supertypes);
-    if (normalizedSupertypes.length > 0) {
-      normalized.supertypes = normalizedSupertypes;
+  const normalizedTalent = normalizeStringArray(card.talent);
+  if (normalizedTalent.length > 0) {
+    normalized.talent = normalizedTalent;
+  } else {
+    normalized.talent = null;
+  }
+
+  const normalizedClass = normalizeStringArray(card.class);
+  if (normalizedClass.length > 0) {
+    normalized.class = normalizedClass;
+    // If Generic is selected, clear talent
+    if (normalizedClass.includes("Generic")) {
+      normalized.talent = null;
     }
   } else {
-    const normalizedSupertype = normalizeString(card.supertypes);
-    if (normalizedSupertype) {
-      normalized.supertypes = normalizedSupertype;
-    }
+    normalized.class = null;
   }
 
   const normalizedTraits = normalizeStringArray(card.traits);

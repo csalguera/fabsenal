@@ -1,7 +1,8 @@
 import type {
   CardTrait,
   CardSubtype,
-  CardSupertype,
+  CardClass,
+  CardTalent,
   CardRarity,
   CardType,
 } from "./api/cards/types/card";
@@ -86,7 +87,23 @@ export const CARD_SUBTYPE_OPTIONS: CardSubtype[] = [
   "Young",
 ];
 
-export const CARD_SUPERTYPE_OPTIONS: CardSupertype[] = [
+export const CARD_TALENT_OPTIONS: CardTalent[] = [
+  "Chaos",
+  "Draconic",
+  "Earth",
+  "Elemental",
+  "Ice",
+  "Light",
+  "Lightning",
+  "Mystic",
+  "Revered",
+  "Reviled",
+  "Royal",
+  "Shadow",
+];
+
+export const CARD_CLASS_OPTIONS: CardClass[] = [
+  "Generic",
   "Adjudicator",
   "Assassin",
   "Bard",
@@ -104,18 +121,6 @@ export const CARD_SUPERTYPE_OPTIONS: CardSupertype[] = [
   "Thief",
   "Warrior",
   "Wizard",
-  "Chaos",
-  "Draconic",
-  "Earth",
-  "Elemental",
-  "Ice",
-  "Light",
-  "Lightning",
-  "Mystic",
-  "Revered",
-  "Reviled",
-  "Royal",
-  "Shadow",
 ];
 
 export const CARD_TRAIT_OPTIONS: CardTrait[] = ["Agent of Chaos"];
