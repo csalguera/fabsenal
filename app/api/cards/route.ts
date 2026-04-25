@@ -10,6 +10,81 @@ type CardDocument = Card & {
   id?: string;
 };
 
+type CardsResponseCard = Partial<Card> & Pick<Card, "id" | "name">;
+
+const LIMIT_OPTIONS = [10, 20, 30, 40, 50] as const;
+
+const COLOR_SORT_ORDER: Record<string, number> = {
+  red: 0,
+  yellow: 1,
+  blue: 2,
+};
+
+function getNullableSingle(searchParams: URLSearchParams, key: string) {
+  return normalizeString(searchParams.get(key));
+}
+
+function parseNumberFilter(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parsePage(value: string | null) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
+function parseLimit(value: string | null) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    return 10;
+  }
+
+  if (LIMIT_OPTIONS.includes(parsed as (typeof LIMIT_OPTIONS)[number])) {
+    return parsed;
+  }
+
+  return 10;
+}
+
+function includesIgnoreCase(
+  value: string | null | undefined,
+  needle: string | null,
+) {
+  if (!needle) {
+    return true;
+  }
+
+  if (!value) {
+    return false;
+  }
+
+  return value.toLowerCase().includes(needle.toLowerCase());
+}
+
+function hasArrayValue(
+  values: string[] | null | undefined,
+  needle: string | null,
+) {
+  if (!needle) {
+    return true;
+  }
+
+  if (!values || values.length === 0) {
+    return false;
+  }
+
+  return values.some((value) => value.toLowerCase() === needle.toLowerCase());
+}
+
 function normalizeString(value: unknown) {
   if (typeof value !== "string") {
     return null;
@@ -139,14 +214,169 @@ function normalizeCardForResponse(document: CardDocument) {
   return normalizeCardShape(card, _id.toString());
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams: params } = new URL(request.url);
     const cardsCollection = await getCardsCollection();
+
+    const id = getNullableSingle(params, "id");
+
+    if (id) {
+      const card = await cardsCollection.findOne<CardDocument>({ id });
+      if (!card) {
+        return NextResponse.json({ error: "Card not found." }, { status: 404 });
+      }
+
+      return NextResponse.json(normalizeCardForResponse(card));
+    }
+
+    const page = parsePage(params.get("page"));
+    const limit = parseLimit(params.get("limit"));
+    const search = getNullableSingle(params, "search");
+
+    const filters = {
+      name: getNullableSingle(params, "name"),
+      pitch: parseNumberFilter(getNullableSingle(params, "pitch")),
+      cost: parseNumberFilter(getNullableSingle(params, "cost")),
+      color: getNullableSingle(params, "color"),
+      power: parseNumberFilter(getNullableSingle(params, "power")),
+      defense: parseNumberFilter(getNullableSingle(params, "defense")),
+      intellect: parseNumberFilter(getNullableSingle(params, "intellect")),
+      life: parseNumberFilter(getNullableSingle(params, "life")),
+      types: getNullableSingle(params, "types"),
+      subtypes: getNullableSingle(params, "subtypes"),
+      talent: getNullableSingle(params, "talent"),
+      class: getNullableSingle(params, "class"),
+      traits: getNullableSingle(params, "traits"),
+      textBox: getNullableSingle(params, "textBox"),
+      abilities: getNullableSingle(params, "abilities"),
+      imageUrl: getNullableSingle(params, "imageUrl"),
+      rarity: getNullableSingle(params, "rarity"),
+    };
+
     const cards = await cardsCollection.find<CardDocument>({}).toArray();
+    const normalizedCards = cards.map(
+      (card) => normalizeCardForResponse(card) as CardsResponseCard,
+    );
 
-    const normalizedCards = cards.map((card) => normalizeCardForResponse(card));
+    const filteredCards = normalizedCards
+      .filter((card) => {
+        if (search && !includesIgnoreCase(card.name, search)) {
+          return false;
+        }
 
-    return NextResponse.json(normalizedCards);
+        if (!includesIgnoreCase(card.name, filters.name)) {
+          return false;
+        }
+
+        if (filters.pitch !== null && card.pitch !== filters.pitch) {
+          return false;
+        }
+
+        if (filters.cost !== null && card.cost !== filters.cost) {
+          return false;
+        }
+
+        if (
+          filters.color &&
+          String(card.color ?? "").toLowerCase() !== filters.color.toLowerCase()
+        ) {
+          return false;
+        }
+
+        if (filters.power !== null && card.power !== filters.power) {
+          return false;
+        }
+
+        if (filters.defense !== null && card.defense !== filters.defense) {
+          return false;
+        }
+
+        if (
+          filters.intellect !== null &&
+          card.intellect !== filters.intellect
+        ) {
+          return false;
+        }
+
+        if (filters.life !== null && card.life !== filters.life) {
+          return false;
+        }
+
+        if (!hasArrayValue(card.types ?? null, filters.types)) {
+          return false;
+        }
+
+        if (!hasArrayValue(card.subtypes ?? null, filters.subtypes)) {
+          return false;
+        }
+
+        if (!hasArrayValue(card.talent ?? null, filters.talent)) {
+          return false;
+        }
+
+        if (!hasArrayValue(card.class ?? null, filters.class)) {
+          return false;
+        }
+
+        if (!hasArrayValue(card.traits ?? null, filters.traits)) {
+          return false;
+        }
+
+        if (!includesIgnoreCase(card.textBox, filters.textBox)) {
+          return false;
+        }
+
+        if (
+          filters.abilities &&
+          !card.abilities?.some((ability) =>
+            ability.toLowerCase().includes(filters.abilities!.toLowerCase()),
+          )
+        ) {
+          return false;
+        }
+
+        if (!includesIgnoreCase(card.imageUrl, filters.imageUrl)) {
+          return false;
+        }
+
+        if (
+          filters.rarity &&
+          String(card.rarity ?? "").toLowerCase() !==
+            filters.rarity.toLowerCase()
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        const byName = a.name.localeCompare(b.name, undefined, {
+          sensitivity: "base",
+        });
+
+        if (byName !== 0) {
+          return byName;
+        }
+
+        const colorA = a.color ? (COLOR_SORT_ORDER[a.color] ?? 99) : 99;
+        const colorB = b.color ? (COLOR_SORT_ORDER[b.color] ?? 99) : 99;
+        return colorA - colorB;
+      });
+
+    const total = filteredCards.length;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+    const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages);
+    const start = (safePage - 1) * limit;
+    const items = filteredCards.slice(start, start + limit);
+
+    return NextResponse.json({
+      items,
+      total,
+      page: safePage,
+      limit,
+      totalPages,
+    });
   } catch (error) {
     console.error("Failed to fetch cards from MongoDB", error);
     return NextResponse.json(

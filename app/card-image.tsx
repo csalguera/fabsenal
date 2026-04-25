@@ -8,6 +8,7 @@ type CardImageProps = {
   alt: string;
   width: number;
   height: number;
+  className?: string;
 };
 
 const FALLBACK_IMAGE = "/file.svg";
@@ -24,7 +25,13 @@ function normalizeInitialSrc(src: string) {
   return src;
 }
 
-export default function CardImage({ src, alt, width, height }: CardImageProps) {
+export default function CardImage({
+  src,
+  alt,
+  width,
+  height,
+  className,
+}: CardImageProps) {
   const initialSrc = useMemo(() => normalizeInitialSrc(src), [src]);
   const [currentSrc, setCurrentSrc] = useState(initialSrc);
 
@@ -34,7 +41,7 @@ export default function CardImage({ src, alt, width, height }: CardImageProps) {
       alt={alt}
       width={width}
       height={height}
-      style={{ width: "auto", height: "auto" }}
+      className={className}
       unoptimized
       onError={() => setCurrentSrc(FALLBACK_IMAGE)}
     />

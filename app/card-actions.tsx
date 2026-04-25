@@ -16,7 +16,6 @@ import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
   getMultiSelectValues,
-  parseCommaSeparatedList,
   type PitchInputValue,
 } from "./card-form-shared";
 
@@ -38,7 +37,7 @@ type CardEditState = ClassificationState & {
   traits: CardTrait[];
   useNoTraits: boolean;
   textBox: string;
-  abilities: string;
+  abilities: string[];
   imageUrl: string;
 };
 
@@ -64,7 +63,8 @@ function initialStateFromCard(
     traits: card.traits ?? [],
     useNoTraits: !card.traits || card.traits.length === 0,
     textBox: card.textBox ?? "",
-    abilities: (card.abilities ?? []).join(", "),
+    abilities:
+      (card.abilities ?? []).length > 0 ? (card.abilities ?? []) : [""],
     imageUrl: card.imageUrl ?? "",
   };
 }
@@ -82,6 +82,35 @@ export default function CardActions({
   const [message, setMessage] = useState<string | null>(null);
 
   const id = card.id;
+
+  const updateAbility = (index: number, value: string) => {
+    setFormState((current) => ({
+      ...current,
+      abilities: current.abilities.map((ability, abilityIndex) =>
+        abilityIndex === index ? value : ability,
+      ),
+    }));
+  };
+
+  const addAbilityField = () => {
+    setFormState((current) => ({
+      ...current,
+      abilities: [...current.abilities, ""],
+    }));
+  };
+
+  const removeAbilityField = (index: number) => {
+    setFormState((current) => {
+      const nextAbilities = current.abilities.filter(
+        (_, abilityIndex) => abilityIndex !== index,
+      );
+
+      return {
+        ...current,
+        abilities: nextAbilities.length > 0 ? nextAbilities : [""],
+      };
+    });
+  };
 
   const uploadImageToS3 = async (file: File) => {
     const uploadPayload = new FormData();
@@ -147,7 +176,9 @@ export default function CardActions({
           ? null
           : formState.traits,
       textBox: formState.textBox.trim(),
-      abilities: parseCommaSeparatedList(formState.abilities),
+      abilities: formState.abilities
+        .map((ability) => ability.trim())
+        .filter(Boolean),
       imageUrl: nextImageUrl,
     };
 
@@ -165,7 +196,7 @@ export default function CardActions({
       }
 
       setMessage("Card updated.");
-      router.refresh();
+      router.replace(`/cards/${id}/view`);
     } catch (error) {
       console.error("Failed to update card", error);
       setMessage("Unable to update card.");
@@ -406,21 +437,37 @@ export default function CardActions({
           }
         />
       </p>
-      <p className="field-row">
-        <label htmlFor={`update-abilities-${id}`}>
-          Abilities (comma-separated)
-        </label>
-        <input
-          id={`update-abilities-${id}`}
-          value={formState.abilities}
-          onChange={(event) =>
-            setFormState((current) => ({
-              ...current,
-              abilities: event.target.value,
-            }))
-          }
-        />
-      </p>
+      <div className="field-row">
+        <label>Abilities</label>
+        <div className="abilities-list">
+          {formState.abilities.map((ability, index) => (
+            <div key={`update-ability-${index}`} className="abilities-item">
+              <textarea
+                id={`update-abilities-${id}-${index}`}
+                value={ability}
+                onChange={(event) => updateAbility(index, event.target.value)}
+                placeholder={`Ability ${index + 1}`}
+                rows={3}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => removeAbilityField(index)}
+                disabled={formState.abilities.length === 1}
+              >
+                Remove Ability
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={addAbilityField}
+        >
+          Add Ability
+        </button>
+      </div>
       <p className="field-row">
         <label htmlFor={`update-imageFile-${id}`}>
           Replace Image (upload only)

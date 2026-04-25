@@ -15,7 +15,6 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
-  parseCommaSeparatedList,
   getMultiSelectValues,
   type PitchInputValue,
 } from "./card-form-shared";
@@ -31,7 +30,7 @@ type CardFormState = ClassificationState & {
   life: string;
   rarity: CardRarity;
   textBox: string;
-  abilities: string;
+  abilities: string[];
   traits: CardTrait[];
   useNoTraits: boolean;
 };
@@ -53,7 +52,7 @@ const INITIAL_FORM_STATE: CardFormState = {
   useNoTalent: true,
   class: [],
   textBox: "",
-  abilities: "",
+  abilities: [""],
   traits: [],
   useNoTraits: true,
 };
@@ -70,6 +69,35 @@ export default function AddCardButton({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
+
+  const updateAbility = (index: number, value: string) => {
+    setFormState((current) => ({
+      ...current,
+      abilities: current.abilities.map((ability, abilityIndex) =>
+        abilityIndex === index ? value : ability,
+      ),
+    }));
+  };
+
+  const addAbilityField = () => {
+    setFormState((current) => ({
+      ...current,
+      abilities: [...current.abilities, ""],
+    }));
+  };
+
+  const removeAbilityField = (index: number) => {
+    setFormState((current) => {
+      const nextAbilities = current.abilities.filter(
+        (_, abilityIndex) => abilityIndex !== index,
+      );
+
+      return {
+        ...current,
+        abilities: nextAbilities.length > 0 ? nextAbilities : [""],
+      };
+    });
+  };
 
   const uploadImageToS3 = async (file: File) => {
     const uploadPayload = new FormData();
@@ -140,7 +168,9 @@ export default function AddCardButton({
           ? null
           : formState.traits,
       textBox: formState.textBox.trim(),
-      abilities: parseCommaSeparatedList(formState.abilities),
+      abilities: formState.abilities
+        .map((ability) => ability.trim())
+        .filter(Boolean),
       imageUrl: uploadedImageUrl,
     };
 
@@ -160,11 +190,7 @@ export default function AddCardButton({
       setMessage("Card added.");
       setFormState(INITIAL_FORM_STATE);
       setImageFile(null);
-      if (successRedirectTo) {
-        router.replace(successRedirectTo);
-      } else {
-        router.refresh();
-      }
+      router.replace(successRedirectTo ?? "/cards");
     } catch (error) {
       console.error("Failed to add card", error);
       setMessage("Unable to add card. Please try again.");
@@ -342,19 +368,37 @@ export default function AddCardButton({
         }
       />
 
-      <p className="field-row">
-        <label htmlFor="abilities">Abilities (comma-separated) </label>
-        <input
-          id="abilities"
-          value={formState.abilities}
-          onChange={(event) =>
-            setFormState((current) => ({
-              ...current,
-              abilities: event.target.value,
-            }))
-          }
-        />
-      </p>
+      <div className="field-row">
+        <label>Abilities</label>
+        <div className="abilities-list">
+          {formState.abilities.map((ability, index) => (
+            <div key={`ability-${index}`} className="abilities-item">
+              <textarea
+                id={`ability-${index}`}
+                value={ability}
+                onChange={(event) => updateAbility(index, event.target.value)}
+                placeholder={`Ability ${index + 1}`}
+                rows={3}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => removeAbilityField(index)}
+                disabled={formState.abilities.length === 1}
+              >
+                Remove Ability
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={addAbilityField}
+        >
+          Add Ability
+        </button>
+      </div>
 
       <p className="field-row">
         <label htmlFor="traits">
