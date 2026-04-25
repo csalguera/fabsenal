@@ -2,9 +2,28 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import CardImage from "../../../card-image";
 import { getCardById, normalizeFieldValue } from "../../_lib";
+import {
+  renderTokenizedInlineText,
+  type InlineTokenMap,
+} from "../../../tokenized-inline-text";
 
 type ViewCardPageProps = {
   params: Promise<{ id: string }>;
+};
+
+const INLINE_TOKEN_MAP: InlineTokenMap = {
+  "{resource}": {
+    src: "/images/resource.png",
+    alt: "Resource",
+    width: 14,
+    height: 14,
+  },
+  "{power}": {
+    src: "/images/power.png",
+    alt: "Power",
+    width: 14,
+    height: 14,
+  },
 };
 
 export default async function ViewCardPage({ params }: ViewCardPageProps) {
@@ -52,15 +71,36 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             { label: "Class", value: card.class },
             { label: "Traits", value: card.traits },
             { label: "Text Box", value: card.textBox },
-            { label: "Abilities", value: card.abilities },
           ].map((field) => {
             const displayValue = normalizeFieldValue(field.value);
             return displayValue ? (
               <p key={field.label}>
-                {field.label}: {displayValue}
+                {field.label}:{" "}
+                {renderTokenizedInlineText(displayValue, INLINE_TOKEN_MAP)}
               </p>
             ) : null;
           })}
+
+          {card.abilities && card.abilities.length > 0 ? (
+            <div className="card-view-abilities">
+              <p>Abilities:</p>
+              {card.abilities.map((ability, index) => {
+                const normalizedAbility = normalizeFieldValue(ability);
+                if (!normalizedAbility) {
+                  return null;
+                }
+
+                return (
+                  <p key={`ability-${index}`}>
+                    {renderTokenizedInlineText(
+                      normalizedAbility,
+                      INLINE_TOKEN_MAP,
+                    )}
+                  </p>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

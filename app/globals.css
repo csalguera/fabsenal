@@ -355,6 +355,23 @@ body {
   color: #30435b;
 }
 
+.card-view-abilities {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.inline-token-wrap {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+}
+
+.inline-token-image {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.2rem;
+}
+
 .card-form,
 .edit-panel {
   display: grid;
