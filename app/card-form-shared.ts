@@ -1,11 +1,14 @@
 import type {
   CardTrait,
-  CardSubtype,
+  CardFunctionalSubtype,
+  CardNonFunctionalSubtype,
   CardClass,
   CardTalent,
   CardRarity,
   CardType,
 } from "./api/cards/types/card";
+
+export type CardSubtype = CardFunctionalSubtype | CardNonFunctionalSubtype;
 
 export type PitchInputValue = "0" | "1" | "2" | "3";
 
@@ -28,7 +31,7 @@ export const CARD_TYPE_OPTIONS: CardType[] = [
   "Weapon",
 ];
 
-export const CARD_SUBTYPE_OPTIONS: CardSubtype[] = [
+export const CARD_FUNCTIONAL_SUBTYPE_OPTIONS: CardFunctionalSubtype[] = [
   "(1H)",
   "(2H)",
   "Affliction",
@@ -44,6 +47,9 @@ export const CARD_SUBTYPE_OPTIONS: CardSubtype[] = [
   "Landmark",
   "Off-Hand",
   "Quiver",
+];
+
+export const CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS: CardNonFunctionalSubtype[] = [
   "Angel",
   "Arms",
   "Axe",

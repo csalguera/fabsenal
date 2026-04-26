@@ -22,14 +22,14 @@ const FILTER_QUERY_KEYS = [
   "intellect",
   "life",
   "types",
-  "subtypes",
+  "functionalSubtypes",
+  "nonFunctionalSubtypes",
   "talent",
   "class",
   "traits",
   "textBox",
   "abilities",
   "imageUrl",
-  "rarity",
 ] as const;
 
 type FilterQueryKey = (typeof FILTER_QUERY_KEYS)[number];
@@ -142,8 +142,8 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
                     <CardImage
                       src={imageSrc}
                       alt={card.name}
-                      width={200}
-                      height={300}
+                      width={160}
+                      height={240}
                       className="card-image"
                     />
                   ) : (

@@ -4,6 +4,7 @@ import type { Card } from "../api/cards/types/card";
 export type CardView = Partial<Card> & Pick<Card, "id" | "name">;
 
 type CardQuery = {
+  all?: boolean;
   page?: number;
   limit?: number;
   search?: string;
@@ -16,7 +17,8 @@ type CardQuery = {
   intellect?: string;
   life?: string;
   types?: string;
-  subtypes?: string;
+  functionalSubtypes?: string;
+  nonFunctionalSubtypes?: string;
   talent?: string;
   class?: string;
   traits?: string;
@@ -171,4 +173,21 @@ export async function getCardById(id: string) {
     console.error("Card fetch failed", error);
     return null;
   }
+}
+
+export async function getCardNavigation(id: string) {
+  const allCards = await getCards({ all: true });
+  const index = allCards.items.findIndex((card) => card.id === id);
+
+  if (index === -1) {
+    return {
+      previousId: null as string | null,
+      nextId: null as string | null,
+    };
+  }
+
+  return {
+    previousId: allCards.items[index - 1]?.id ?? null,
+    nextId: allCards.items[index + 1]?.id ?? null,
+  };
 }

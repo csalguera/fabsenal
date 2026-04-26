@@ -25,7 +25,7 @@ const SILVER_AGE_ALLOWED_RARITIES = new Set<CardRarity>([
 ]);
 
 function hasSubtype(card: Card, subtype: string) {
-  return (card.subtypes ?? []).includes(subtype as never);
+  return (card.nonFunctionalSubtypes ?? []).includes(subtype as never);
 }
 
 function isYoungOrPitFighter(card: Card) {

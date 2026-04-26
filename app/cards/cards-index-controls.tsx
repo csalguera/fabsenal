@@ -4,8 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CARD_CLASS_OPTIONS,
-  CARD_RARITY_OPTIONS,
-  CARD_SUBTYPE_OPTIONS,
+  CARD_FUNCTIONAL_SUBTYPE_OPTIONS,
+  CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS,
   CARD_TALENT_OPTIONS,
   CARD_TRAIT_OPTIONS,
   CARD_TYPE_OPTIONS,
@@ -21,14 +21,14 @@ export type CardFilterValues = {
   intellect: string;
   life: string;
   types: string;
-  subtypes: string;
+  functionalSubtypes: string;
+  nonFunctionalSubtypes: string;
   talent: string;
   class: string;
   traits: string;
   textBox: string;
   abilities: string;
   imageUrl: string;
-  rarity: string;
 };
 
 type CardsIndexControlsProps = {
@@ -49,14 +49,14 @@ const EMPTY_FILTERS: CardFilterValues = {
   intellect: "",
   life: "",
   types: "",
-  subtypes: "",
+  functionalSubtypes: "",
+  nonFunctionalSubtypes: "",
   talent: "",
   class: "",
   traits: "",
   textBox: "",
   abilities: "",
   imageUrl: "",
-  rarity: "",
 };
 
 export default function CardsIndexControls({
@@ -306,17 +306,41 @@ export default function CardsIndexControls({
               </select>
             </label>
 
-            <label className="cards-toolbar-field" htmlFor="filter-subtypes">
-              Subtypes
+            <label
+              className="cards-toolbar-field"
+              htmlFor="filter-functional-subtypes"
+            >
+              Functional Subtypes
               <select
-                id="filter-subtypes"
-                value={filters.subtypes}
+                id="filter-functional-subtypes"
+                value={filters.functionalSubtypes}
                 onChange={(event) =>
-                  setFilterValue("subtypes", event.target.value)
+                  setFilterValue("functionalSubtypes", event.target.value)
                 }
               >
                 <option value="">Any</option>
-                {CARD_SUBTYPE_OPTIONS.map((option) => (
+                {CARD_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label
+              className="cards-toolbar-field"
+              htmlFor="filter-non-functional-subtypes"
+            >
+              Non-Functional Subtypes
+              <select
+                id="filter-non-functional-subtypes"
+                value={filters.nonFunctionalSubtypes}
+                onChange={(event) =>
+                  setFilterValue("nonFunctionalSubtypes", event.target.value)
+                }
+              >
+                <option value="">Any</option>
+                {CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -411,23 +435,6 @@ export default function CardsIndexControls({
               />
             </label>
 
-            <label className="cards-toolbar-field" htmlFor="filter-rarity">
-              Rarity
-              <select
-                id="filter-rarity"
-                value={filters.rarity}
-                onChange={(event) =>
-                  setFilterValue("rarity", event.target.value)
-                }
-              >
-                <option value="">Any</option>
-                {CARD_RARITY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
 
           <div className="filters-dialog-actions">

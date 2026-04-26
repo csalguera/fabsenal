@@ -15,7 +15,6 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
-  getMultiSelectValues,
   type PitchInputValue,
 } from "./card-form-shared";
 
@@ -40,17 +39,19 @@ const INITIAL_FORM_STATE: CardFormState = {
   pitch: "0",
   cost: "0",
   color: "",
-  power: "",
-  defense: "",
-  intellect: "",
-  life: "",
+  power: "0",
+  defense: "0",
+  intellect: "0",
+  life: "0",
   rarity: "Common",
   types: ["Action"],
-  subtypes: [],
-  useNoSubtypes: true,
+  functionalSubtypes: [],
+  useNoFunctionalSubtypes: true,
+  nonFunctionalSubtypes: [],
+  useNoNonFunctionalSubtypes: true,
   talent: [],
   useNoTalent: true,
-  class: [],
+  class: ["Generic"],
   textBox: "",
   abilities: [""],
   traits: [],
@@ -160,7 +161,12 @@ export default function AddCardButton({
       life: formState.life ? Number(formState.life) : null,
       rarity: formState.rarity,
       types: formState.types,
-      subtypes: formState.useNoSubtypes ? null : formState.subtypes,
+      functionalSubtypes: formState.useNoFunctionalSubtypes
+        ? null
+        : formState.functionalSubtypes,
+      nonFunctionalSubtypes: formState.useNoNonFunctionalSubtypes
+        ? null
+        : formState.nonFunctionalSubtypes,
       talent: formState.useNoTalent ? null : formState.talent,
       class: formState.class.length > 0 ? formState.class : null,
       traits:
@@ -190,7 +196,7 @@ export default function AddCardButton({
       setMessage("Card added.");
       setFormState(INITIAL_FORM_STATE);
       setImageFile(null);
-      router.replace(successRedirectTo ?? "/cards");
+      router.replace(successRedirectTo ?? `/cards/${payload.id}/view`);
     } catch (error) {
       console.error("Failed to add card", error);
       setMessage("Unable to add card. Please try again.");
@@ -354,8 +360,10 @@ export default function AddCardButton({
         idPrefix="add"
         state={{
           types: formState.types,
-          subtypes: formState.subtypes,
-          useNoSubtypes: formState.useNoSubtypes,
+          functionalSubtypes: formState.functionalSubtypes,
+          useNoFunctionalSubtypes: formState.useNoFunctionalSubtypes,
+          nonFunctionalSubtypes: formState.nonFunctionalSubtypes,
+          useNoNonFunctionalSubtypes: formState.useNoNonFunctionalSubtypes,
           talent: formState.talent,
           useNoTalent: formState.useNoTalent,
           class: formState.class,
@@ -367,6 +375,45 @@ export default function AddCardButton({
           }))
         }
       />
+
+      <p className="field-row">
+        <label htmlFor="traits">Trait</label>
+        <select
+          id="traits"
+          value={formState.useNoTraits ? "__NONE__" : (formState.traits[0] ?? "__NONE__")}
+          onChange={(event) => {
+            const selectedValue = event.target.value;
+            const selectedNone = selectedValue === "__NONE__";
+
+            setFormState((current) => ({
+              ...current,
+              useNoTraits: selectedNone,
+              traits: selectedNone ? [] : ([selectedValue] as CardTrait[]),
+            }));
+          }}
+        >
+          <option value="__NONE__">None</option>
+          {CARD_TRAIT_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </p>
+
+      <p className="field-row">
+        <label htmlFor="textbox">Text Box </label>
+        <input
+          id="textbox"
+          value={formState.textBox}
+          onChange={(event) =>
+            setFormState((current) => ({
+              ...current,
+              textBox: event.target.value,
+            }))
+          }
+        />
+      </p>
 
       <div className="field-row">
         <label>Abilities</label>
@@ -399,34 +446,6 @@ export default function AddCardButton({
           Add Ability
         </button>
       </div>
-
-      <p className="field-row">
-        <label htmlFor="traits">
-          Traits (hold Cmd/Ctrl to select multiple, includes None){" "}
-        </label>
-        <select
-          id="traits"
-          value={formState.useNoTraits ? ["__NONE__"] : formState.traits}
-          onChange={(event) => {
-            const values = getMultiSelectValues(event);
-            const selectedNone = values.includes("__NONE__");
-
-            setFormState((current) => ({
-              ...current,
-              useNoTraits: selectedNone,
-              traits: selectedNone ? [] : (values as CardTrait[]),
-            }));
-          }}
-          multiple
-        >
-          <option value="__NONE__">None</option>
-          {CARD_TRAIT_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </p>
 
       <p className="field-row">
         <label htmlFor="imageFile">Upload Image To S3 </label>

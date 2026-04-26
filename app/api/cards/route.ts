@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCardsCollection } from "@/lib/mongodb";
 import type { Card } from "./types/card";
-import { CARD_RARITY_OPTIONS } from "../../card-form-shared";
+import {
+  CARD_FUNCTIONAL_SUBTYPE_OPTIONS,
+  CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS,
+  CARD_RARITY_OPTIONS,
+} from "../../card-form-shared";
 import type { CardRarity } from "./types/card";
 
 type CardDocument = Card & {
@@ -153,9 +157,43 @@ function normalizeCardShape(
     normalized.types = normalizedTypes;
   }
 
-  const normalizedSubtypes = normalizeStringArray(card.subtypes);
-  if (normalizedSubtypes.length > 0) {
-    normalized.subtypes = normalizedSubtypes;
+  const normalizedFunctionalSubtypes = normalizeStringArray(
+    card.functionalSubtypes,
+  );
+  const normalizedNonFunctionalSubtypes = normalizeStringArray(
+    card.nonFunctionalSubtypes,
+  );
+
+  // Backward compatibility for legacy records that still store a combined subtypes array.
+  const legacySubtypes = normalizeStringArray(
+    (card as { subtypes?: unknown }).subtypes,
+  );
+  const inferredFunctionalSubtypes = legacySubtypes.filter((subtype) =>
+    CARD_FUNCTIONAL_SUBTYPE_OPTIONS.includes(subtype as never),
+  );
+  const inferredNonFunctionalSubtypes = legacySubtypes.filter((subtype) =>
+    CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS.includes(subtype as never),
+  );
+
+  const finalFunctionalSubtypes =
+    normalizedFunctionalSubtypes.length > 0
+      ? normalizedFunctionalSubtypes
+      : inferredFunctionalSubtypes;
+  const finalNonFunctionalSubtypes =
+    normalizedNonFunctionalSubtypes.length > 0
+      ? normalizedNonFunctionalSubtypes
+      : inferredNonFunctionalSubtypes;
+
+  if (finalFunctionalSubtypes.length > 0) {
+    normalized.functionalSubtypes = finalFunctionalSubtypes;
+  } else {
+    normalized.functionalSubtypes = null;
+  }
+
+  if (finalNonFunctionalSubtypes.length > 0) {
+    normalized.nonFunctionalSubtypes = finalNonFunctionalSubtypes;
+  } else {
+    normalized.nonFunctionalSubtypes = null;
   }
 
   const normalizedTalent = normalizeStringArray(card.talent);
@@ -218,7 +256,6 @@ function getSearchableCardText(card: CardsResponseCard) {
   return [
     card.id,
     card.name,
-    card.rarity,
     card.color,
     card.textBox,
     card.imageUrl,
@@ -229,7 +266,8 @@ function getSearchableCardText(card: CardsResponseCard) {
     card.intellect,
     card.life,
     ...(card.types ?? []),
-    ...(card.subtypes ?? []),
+    ...(card.functionalSubtypes ?? []),
+    ...(card.nonFunctionalSubtypes ?? []),
     ...(card.talent ?? []),
     ...(card.class ?? []),
     ...(card.traits ?? []),
@@ -273,14 +311,17 @@ export async function GET(request: Request) {
       intellect: parseNumberFilter(getNullableSingle(params, "intellect")),
       life: parseNumberFilter(getNullableSingle(params, "life")),
       types: getNullableSingle(params, "types"),
-      subtypes: getNullableSingle(params, "subtypes"),
+      functionalSubtypes: getNullableSingle(params, "functionalSubtypes"),
+      nonFunctionalSubtypes: getNullableSingle(
+        params,
+        "nonFunctionalSubtypes",
+      ),
       talent: getNullableSingle(params, "talent"),
       class: getNullableSingle(params, "class"),
       traits: getNullableSingle(params, "traits"),
       textBox: getNullableSingle(params, "textBox"),
       abilities: getNullableSingle(params, "abilities"),
       imageUrl: getNullableSingle(params, "imageUrl"),
-      rarity: getNullableSingle(params, "rarity"),
     };
 
     const cards = await cardsCollection.find<CardDocument>({}).toArray();
@@ -339,7 +380,21 @@ export async function GET(request: Request) {
           return false;
         }
 
-        if (!hasArrayValue(card.subtypes ?? null, filters.subtypes)) {
+        if (
+          !hasArrayValue(
+            card.functionalSubtypes ?? null,
+            filters.functionalSubtypes,
+          )
+        ) {
+          return false;
+        }
+
+        if (
+          !hasArrayValue(
+            card.nonFunctionalSubtypes ?? null,
+            filters.nonFunctionalSubtypes,
+          )
+        ) {
           return false;
         }
 
@@ -369,14 +424,6 @@ export async function GET(request: Request) {
         }
 
         if (!includesIgnoreCase(card.imageUrl, filters.imageUrl)) {
-          return false;
-        }
-
-        if (
-          filters.rarity &&
-          String(card.rarity ?? "").toLowerCase() !==
-            filters.rarity.toLowerCase()
-        ) {
           return false;
         }
 

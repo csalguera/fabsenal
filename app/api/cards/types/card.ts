@@ -15,7 +15,7 @@ export type CardType =
   | "Resource"
   | "Token"
   | "Weapon";
-export type CardSubtype =
+export type CardFunctionalSubtype =
   | "(1H)"
   | "(2H)"
   | "Affliction"
@@ -30,7 +30,8 @@ export type CardSubtype =
   | "Item"
   | "Landmark"
   | "Off-Hand"
-  | "Quiver"
+  | "Quiver";
+export type CardNonFunctionalSubtype =
   | "Angel"
   | "Arms"
   | "Axe"
@@ -126,7 +127,8 @@ export interface Card {
   intellect: number | null;
   life: number | null;
   types: CardType[];
-  subtypes: CardSubtype[] | null;
+  functionalSubtypes: CardFunctionalSubtype[] | null;
+  nonFunctionalSubtypes: CardNonFunctionalSubtype[] | null;
   talent: CardTalent[] | null;
   class: CardClass[] | null;
   traits: CardTrait[] | null;

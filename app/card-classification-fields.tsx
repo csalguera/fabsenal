@@ -1,21 +1,24 @@
 import type {
-  CardSubtype,
+  CardFunctionalSubtype,
+  CardNonFunctionalSubtype,
   CardClass,
   CardTalent,
   CardType,
 } from "./api/cards/types/card";
 import {
-  CARD_SUBTYPE_OPTIONS,
+  CARD_FUNCTIONAL_SUBTYPE_OPTIONS,
+  CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS,
   CARD_CLASS_OPTIONS,
   CARD_TALENT_OPTIONS,
   CARD_TYPE_OPTIONS,
-  getMultiSelectValues,
 } from "./card-form-shared";
 
 export type ClassificationState = {
   types: CardType[];
-  subtypes: CardSubtype[];
-  useNoSubtypes: boolean;
+  functionalSubtypes: CardFunctionalSubtype[];
+  useNoFunctionalSubtypes: boolean;
+  nonFunctionalSubtypes: CardNonFunctionalSubtype[];
+  useNoNonFunctionalSubtypes: boolean;
   talent: CardTalent[];
   useNoTalent: boolean;
   class: CardClass[];
@@ -42,20 +45,29 @@ export default function CardClassificationFields({
   state,
   onChange,
 }: CardClassificationFieldsProps) {
+  const selectedType = state.types[0] ?? CARD_TYPE_OPTIONS[0];
+  const selectedNonFunctionalSubtype = state.useNoNonFunctionalSubtypes
+    ? "__NONE__"
+    : (state.nonFunctionalSubtypes[0] ?? "__NONE__");
+
+  const hasNonGenericClassSelected = state.class.some(
+    (selectedClass) => selectedClass !== "Generic",
+  );
+
+  const isGenericClassOnly =
+    state.class.includes("Generic") && !hasNonGenericClassSelected;
+
   return (
     <>
       <p className="field-row">
-        <label htmlFor={`${idPrefix}-types`}>
-          Types (hold Cmd/Ctrl to select multiple)
-        </label>
+        <label htmlFor={`${idPrefix}-types`}>Type</label>
         <select
           id={`${idPrefix}-types`}
-          multiple
-          value={state.types}
+          value={selectedType}
           onChange={(event) =>
             onChange({
               ...state,
-              types: getMultiSelectValues(event) as CardType[],
+              types: [event.target.value as CardType],
             })
           }
           required
@@ -68,26 +80,100 @@ export default function CardClassificationFields({
         </select>
       </p>
 
+      <div className="field-row">
+        <label>Functional Subtypes (dynamic fields)</label>
+        {!state.useNoFunctionalSubtypes
+          ? state.functionalSubtypes.map((value, index) => (
+              <div
+                key={`${idPrefix}-functional-subtype-${index}`}
+                className="dynamic-select-row"
+              >
+                <select
+                  id={`${idPrefix}-functional-subtype-${index}`}
+                  value={value}
+                  onChange={(event) => {
+                    const nextValues = withValueAtIndex(
+                      state.functionalSubtypes,
+                      index,
+                      event.target.value as CardFunctionalSubtype,
+                    );
+
+                    onChange({
+                      ...state,
+                      useNoFunctionalSubtypes: false,
+                      functionalSubtypes: uniqueValues(nextValues),
+                    });
+                  }}
+                >
+                  {CARD_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    const nextValues = state.functionalSubtypes.filter(
+                      (_, valueIndex) => valueIndex !== index,
+                    );
+
+                    onChange({
+                      ...state,
+                      useNoFunctionalSubtypes: nextValues.length === 0,
+                      functionalSubtypes: nextValues,
+                    });
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))
+          : null}
+        <div className="dynamic-select-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              const nextValues = state.functionalSubtypes.length
+                ? [...state.functionalSubtypes, CARD_FUNCTIONAL_SUBTYPE_OPTIONS[0]]
+                : [CARD_FUNCTIONAL_SUBTYPE_OPTIONS[0]];
+
+              onChange({
+                ...state,
+                useNoFunctionalSubtypes: false,
+                functionalSubtypes: uniqueValues(nextValues),
+              });
+            }}
+          >
+            Add Functional Subtype
+          </button>
+        </div>
+      </div>
+
       <p className="field-row">
-        <label htmlFor={`${idPrefix}-subtypes`}>
-          Subtypes (multiple, includes None)
+        <label htmlFor={`${idPrefix}-non-functional-subtype`}>
+          Non-Functional Subtype
         </label>
         <select
-          id={`${idPrefix}-subtypes`}
-          multiple
-          value={state.useNoSubtypes ? ["__NONE__"] : state.subtypes}
+          id={`${idPrefix}-non-functional-subtype`}
+          value={selectedNonFunctionalSubtype}
           onChange={(event) => {
-            const values = getMultiSelectValues(event);
-            const selectedNone = values.includes("__NONE__");
+            const selectedValue = event.target.value;
+            const selectedNone = selectedValue === "__NONE__";
+
             onChange({
               ...state,
-              useNoSubtypes: selectedNone,
-              subtypes: selectedNone ? [] : (values as CardSubtype[]),
+              useNoNonFunctionalSubtypes: selectedNone,
+              nonFunctionalSubtypes: selectedNone
+                ? []
+                : [selectedValue as CardNonFunctionalSubtype],
             });
           }}
         >
           <option value="__NONE__">None</option>
-          {CARD_SUBTYPE_OPTIONS.map((option) => (
+          {CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -96,8 +182,8 @@ export default function CardClassificationFields({
       </p>
 
       <div className="field-row">
-        <label>Talent (dynamic fields, includes None)</label>
-        {state.class.includes("Generic") ? (
+        <label>Talent (dynamic fields)</label>
+        {isGenericClassOnly ? (
           <p className="form-message">
             Talent is disabled when Generic class is selected.
           </p>
@@ -124,7 +210,7 @@ export default function CardClassificationFields({
                       talent: uniqueValues(nextValues),
                     });
                   }}
-                  disabled={state.class.includes("Generic")}
+                  disabled={isGenericClassOnly}
                 >
                   {CARD_TALENT_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -146,7 +232,7 @@ export default function CardClassificationFields({
                       talent: nextValues,
                     });
                   }}
-                  disabled={state.class.includes("Generic")}
+                  disabled={isGenericClassOnly}
                 >
                   Remove
                 </button>
@@ -168,22 +254,9 @@ export default function CardClassificationFields({
                 talent: uniqueValues(nextTalent),
               });
             }}
-            disabled={state.class.includes("Generic")}
+            disabled={isGenericClassOnly}
           >
             Add Talent
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() =>
-              onChange({
-                ...state,
-                useNoTalent: true,
-                talent: [],
-              })
-            }
-          >
-            None
           </button>
         </div>
       </div>
@@ -204,7 +277,17 @@ export default function CardClassificationFields({
                   index,
                   event.target.value as CardClass,
                 );
-                const nextClass = uniqueValues(nextValues);
+                const changedClass = event.target.value as CardClass;
+                let nextClass = uniqueValues(nextValues);
+
+                if (changedClass === "Generic") {
+                  nextClass = ["Generic"];
+                } else {
+                  nextClass = nextClass.filter(
+                    (className) => className !== "Generic",
+                  );
+                }
+
                 const containsGeneric = nextClass.includes("Generic");
 
                 onChange({
@@ -215,7 +298,12 @@ export default function CardClassificationFields({
                 });
               }}
             >
-              {CARD_CLASS_OPTIONS.map((option) => (
+              {CARD_CLASS_OPTIONS.filter(
+                (option) =>
+                  option !== "Generic" ||
+                  !hasNonGenericClassSelected ||
+                  value === "Generic",
+              ).map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -231,9 +319,22 @@ export default function CardClassificationFields({
 
                 onChange({
                   ...state,
-                  class: nextClass,
+                  class: nextClass.length > 0 ? nextClass : ["Generic"],
+                  useNoTalent:
+                    (nextClass.length === 0 ? ["Generic"] : nextClass).includes(
+                      "Generic",
+                    )
+                      ? true
+                      : state.useNoTalent,
+                  talent:
+                    (nextClass.length === 0 ? ["Generic"] : nextClass).includes(
+                      "Generic",
+                    )
+                      ? []
+                      : state.talent,
                 });
               }}
+              disabled={isGenericClassOnly && state.class.length === 1}
             >
               Remove
             </button>
@@ -242,12 +343,13 @@ export default function CardClassificationFields({
         <button
           type="button"
           className="btn btn-secondary"
+          disabled={isGenericClassOnly}
           onClick={() =>
             onChange({
               ...state,
               class: uniqueValues([
                 ...state.class,
-                CARD_CLASS_OPTIONS[state.class.includes("Generic") ? 1 : 0],
+                CARD_CLASS_OPTIONS[state.class.length === 0 ? 0 : 1],
               ]),
             })
           }

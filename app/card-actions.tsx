@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import CardImage from "./card-image";
 import type {
   Card,
   CardColor,
@@ -15,7 +16,6 @@ import CardClassificationFields, {
 import {
   CARD_RARITY_OPTIONS,
   CARD_TRAIT_OPTIONS,
-  getMultiSelectValues,
   type PitchInputValue,
 } from "./card-form-shared";
 
@@ -48,19 +48,23 @@ function initialStateFromCard(
     name: card.name,
     pitch:
       card.pitch != null ? (String(card.pitch) as CardEditState["pitch"]) : "0",
-    cost: card.cost != null ? String(card.cost) : "",
+    cost: card.cost != null ? String(card.cost) : "0",
     color: card.color ?? "",
-    power: card.power != null ? String(card.power) : "",
-    defense: card.defense != null ? String(card.defense) : "",
-    intellect: card.intellect != null ? String(card.intellect) : "",
-    life: card.life != null ? String(card.life) : "",
+    power: card.power != null ? String(card.power) : "0",
+    defense: card.defense != null ? String(card.defense) : "0",
+    intellect: card.intellect != null ? String(card.intellect) : "0",
+    life: card.life != null ? String(card.life) : "0",
     rarity: card.rarity ?? "Common",
     types: card.types ?? ["Action"],
-    subtypes: card.subtypes ?? [],
-    useNoSubtypes: !card.subtypes || card.subtypes.length === 0,
+    functionalSubtypes: card.functionalSubtypes ?? [],
+    useNoFunctionalSubtypes:
+      !card.functionalSubtypes || card.functionalSubtypes.length === 0,
+    nonFunctionalSubtypes: card.nonFunctionalSubtypes ?? [],
+    useNoNonFunctionalSubtypes:
+      !card.nonFunctionalSubtypes || card.nonFunctionalSubtypes.length === 0,
     talent: card.talent ?? [],
     useNoTalent: !card.talent || card.talent.length === 0,
-    class: card.class ?? [],
+    class: card.class && card.class.length > 0 ? card.class : ["Generic"],
     traits: card.traits ?? [],
     useNoTraits: !card.traits || card.traits.length === 0,
     textBox: card.textBox ?? "",
@@ -169,7 +173,12 @@ export default function CardActions({
       life: formState.life ? Number(formState.life) : null,
       rarity: formState.rarity,
       types: formState.types,
-      subtypes: formState.useNoSubtypes ? null : formState.subtypes,
+      functionalSubtypes: formState.useNoFunctionalSubtypes
+        ? null
+        : formState.functionalSubtypes,
+      nonFunctionalSubtypes: formState.useNoNonFunctionalSubtypes
+        ? null
+        : formState.nonFunctionalSubtypes,
       talent: formState.useNoTalent ? null : formState.talent,
       class: formState.class.length > 0 ? formState.class : null,
       traits:
@@ -385,8 +394,10 @@ export default function CardActions({
         idPrefix={`update-${id}`}
         state={{
           types: formState.types,
-          subtypes: formState.subtypes,
-          useNoSubtypes: formState.useNoSubtypes,
+          functionalSubtypes: formState.functionalSubtypes,
+          useNoFunctionalSubtypes: formState.useNoFunctionalSubtypes,
+          nonFunctionalSubtypes: formState.nonFunctionalSubtypes,
+          useNoNonFunctionalSubtypes: formState.useNoNonFunctionalSubtypes,
           talent: formState.talent,
           useNoTalent: formState.useNoTalent,
           class: formState.class,
@@ -399,23 +410,24 @@ export default function CardActions({
         }
       />
       <p className="field-row">
-        <label htmlFor={`update-traits-${id}`}>
-          Traits (hold Cmd/Ctrl to select multiple, includes None)
-        </label>
+        <label htmlFor={`update-traits-${id}`}>Trait</label>
         <select
           id={`update-traits-${id}`}
-          value={formState.useNoTraits ? ["__NONE__"] : formState.traits}
+          value={
+            formState.useNoTraits
+              ? "__NONE__"
+              : (formState.traits[0] ?? "__NONE__")
+          }
           onChange={(event) => {
-            const values = getMultiSelectValues(event);
-            const selectedNone = values.includes("__NONE__");
+            const selectedValue = event.target.value;
+            const selectedNone = selectedValue === "__NONE__";
 
             setFormState((current) => ({
               ...current,
               useNoTraits: selectedNone,
-              traits: selectedNone ? [] : (values as CardTrait[]),
+              traits: selectedNone ? [] : ([selectedValue] as CardTrait[]),
             }));
           }}
-          multiple
         >
           <option value="__NONE__">None</option>
           {CARD_TRAIT_OPTIONS.map((option) => (
@@ -469,6 +481,22 @@ export default function CardActions({
           Add Ability
         </button>
       </div>
+      <p className="field-row">
+        <label>Current Image</label>
+        {formState.imageUrl ? (
+          <span className="card-current-image-preview">
+            <CardImage
+              src={formState.imageUrl}
+              alt={formState.name}
+              width={120}
+              height={180}
+              className="card-current-image"
+            />
+          </span>
+        ) : (
+          <span className="form-message">No image available.</span>
+        )}
+      </p>
       <p className="field-row">
         <label htmlFor={`update-imageFile-${id}`}>
           Replace Image (upload only)

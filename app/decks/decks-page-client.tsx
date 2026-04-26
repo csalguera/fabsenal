@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getClientUserId } from "./auth-client";
 import { clearGuestDecks, deleteGuestDeck, loadGuestDecks } from "./storage";
 import type { DeckRecord, GuestDeckRecord } from "./types";
@@ -14,8 +13,7 @@ function isGuestDeck(deck: SavedDeck): deck is GuestDeckRecord {
 }
 
 export default function DecksPageClient() {
-  const router = useRouter();
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId] = useState<string | null>(() => getClientUserId());
   const [dbDecks, setDbDecks] = useState<DeckRecord[]>([]);
   const [guestDecks, setGuestDecks] = useState<GuestDeckRecord[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -44,10 +42,9 @@ export default function DecksPageClient() {
   };
 
   useEffect(() => {
-    const currentUserId = getClientUserId();
-    setUserId(currentUserId);
-    void loadDecks(currentUserId);
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadDecks(userId);
+  }, [userId]);
 
   const migrateGuestDecks = async () => {
     if (!userId) {
