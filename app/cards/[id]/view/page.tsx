@@ -120,8 +120,15 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
 
   const imageSrc = normalizeFieldValue(card.imageUrl);
   const isMainDeckCard = card.types?.some((type) => MAIN_DECK_TYPES.has(type));
+  const hasAllySubtype = [
+    ...(card.functionalSubtypes ?? []),
+    ...(card.nonFunctionalSubtypes ?? []),
+  ].some((subtype) => subtype.toLowerCase() === "ally");
   const shouldRenderNumericField = (value: number | null | undefined) =>
     Boolean(isMainDeckCard) || (value ?? 0) > 0;
+  const shouldRenderDefenseField = shouldRenderNumericField(card.defense);
+  const shouldRenderIntellectField =
+    !isMainDeckCard && shouldRenderNumericField(card.intellect);
   const mergedSubtypes = Array.from(
     new Set([
       ...(card.functionalSubtypes ?? []),
@@ -175,10 +182,10 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             ...(shouldRenderNumericField(card.power)
               ? [{ label: "Power", value: card.power }]
               : []),
-            ...(shouldRenderNumericField(card.defense)
+            ...(shouldRenderDefenseField && !hasAllySubtype
               ? [{ label: "Defense", value: card.defense }]
               : []),
-            ...(shouldRenderNumericField(card.intellect)
+            ...(shouldRenderIntellectField
               ? [{ label: "Intellect", value: card.intellect }]
               : []),
             ...(shouldRenderNumericField(card.life)

@@ -1561,9 +1561,19 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-card-modal-data">
                     {(() => {
                       const isMainDeckCard = shouldShowMainDeckStats(modalCard);
+                      const hasAllySubtype = [
+                        ...(modalCard.functionalSubtypes ?? []),
+                        ...(modalCard.nonFunctionalSubtypes ?? []),
+                      ].some((subtype) => subtype.toLowerCase() === "ally");
                       const shouldRenderNumericField = (
                         value: number | null | undefined,
                       ) => isMainDeckCard || (value ?? 0) > 0;
+                      const shouldRenderDefenseField = shouldRenderNumericField(
+                        modalCard.defense,
+                      );
+                      const shouldRenderIntellectField =
+                        !isMainDeckCard &&
+                        shouldRenderNumericField(modalCard.intellect);
                       const mergedSubtypes = Array.from(
                         new Set([
                           ...(modalCard.functionalSubtypes ?? []),
@@ -1583,10 +1593,10 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         ...(shouldRenderNumericField(modalCard.power)
                           ? [{ label: "Power", value: modalCard.power }]
                           : []),
-                        ...(shouldRenderNumericField(modalCard.defense)
+                        ...(shouldRenderDefenseField && !hasAllySubtype
                           ? [{ label: "Defense", value: modalCard.defense }]
                           : []),
-                        ...(shouldRenderNumericField(modalCard.intellect)
+                        ...(shouldRenderIntellectField
                           ? [{ label: "Intellect", value: modalCard.intellect }]
                           : []),
                         ...(shouldRenderNumericField(modalCard.life)
