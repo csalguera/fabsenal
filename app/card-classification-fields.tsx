@@ -137,7 +137,10 @@ export default function CardClassificationFields({
             className="btn btn-secondary"
             onClick={() => {
               const nextValues = state.functionalSubtypes.length
-                ? [...state.functionalSubtypes, CARD_FUNCTIONAL_SUBTYPE_OPTIONS[0]]
+                ? [
+                    ...state.functionalSubtypes,
+                    CARD_FUNCTIONAL_SUBTYPE_OPTIONS[0],
+                  ]
                 : [CARD_FUNCTIONAL_SUBTYPE_OPTIONS[0]];
 
               onChange({
@@ -320,18 +323,18 @@ export default function CardClassificationFields({
                 onChange({
                   ...state,
                   class: nextClass.length > 0 ? nextClass : ["Generic"],
-                  useNoTalent:
-                    (nextClass.length === 0 ? ["Generic"] : nextClass).includes(
-                      "Generic",
-                    )
-                      ? true
-                      : state.useNoTalent,
-                  talent:
-                    (nextClass.length === 0 ? ["Generic"] : nextClass).includes(
-                      "Generic",
-                    )
-                      ? []
-                      : state.talent,
+                  useNoTalent: (nextClass.length === 0
+                    ? ["Generic"]
+                    : nextClass
+                  ).includes("Generic")
+                    ? true
+                    : state.useNoTalent,
+                  talent: (nextClass.length === 0
+                    ? ["Generic"]
+                    : nextClass
+                  ).includes("Generic")
+                    ? []
+                    : state.talent,
                 });
               }}
               disabled={isGenericClassOnly && state.class.length === 1}

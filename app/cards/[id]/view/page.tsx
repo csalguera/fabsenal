@@ -119,12 +119,9 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
     : `/cards/${card.id}/view`;
 
   const imageSrc = normalizeFieldValue(card.imageUrl);
-  const shouldShowMainDeckStats = card.types?.some((type) =>
-    MAIN_DECK_TYPES.has(type),
-  );
-  const isTokenCard = card.types?.includes("Token") ?? false;
-  const shouldRenderTokenStat = (value: number | null | undefined) =>
-    !isTokenCard || (value ?? 0) > 0;
+  const isMainDeckCard = card.types?.some((type) => MAIN_DECK_TYPES.has(type));
+  const shouldRenderNumericField = (value: number | null | undefined) =>
+    Boolean(isMainDeckCard) || (value ?? 0) > 0;
   const mergedSubtypes = Array.from(
     new Set([
       ...(card.functionalSubtypes ?? []),
@@ -168,21 +165,23 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
         <div className="card-view-data">
           {[
             { label: "Rarity", value: card.rarity },
-            ...(shouldShowMainDeckStats || shouldRenderTokenStat(card.pitch)
-              ? [
-                  { label: "Pitch", value: card.pitch },
-                  { label: "Cost", value: card.cost },
-                ]
+            ...(shouldRenderNumericField(card.pitch)
+              ? [{ label: "Pitch", value: card.pitch }]
+              : []),
+            ...(shouldRenderNumericField(card.cost)
+              ? [{ label: "Cost", value: card.cost }]
               : []),
             { label: "Color", value: card.color },
-            { label: "Power", value: card.power },
-            ...(shouldRenderTokenStat(card.defense)
+            ...(shouldRenderNumericField(card.power)
+              ? [{ label: "Power", value: card.power }]
+              : []),
+            ...(shouldRenderNumericField(card.defense)
               ? [{ label: "Defense", value: card.defense }]
               : []),
-            ...(shouldRenderTokenStat(card.intellect)
+            ...(shouldRenderNumericField(card.intellect)
               ? [{ label: "Intellect", value: card.intellect }]
               : []),
-            ...(shouldRenderTokenStat(card.life)
+            ...(shouldRenderNumericField(card.life)
               ? [{ label: "Life", value: card.life }]
               : []),
             { label: "Types", value: card.types },

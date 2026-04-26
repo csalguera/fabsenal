@@ -380,7 +380,11 @@ export default function AddCardButton({
         <label htmlFor="traits">Trait</label>
         <select
           id="traits"
-          value={formState.useNoTraits ? "__NONE__" : (formState.traits[0] ?? "__NONE__")}
+          value={
+            formState.useNoTraits
+              ? "__NONE__"
+              : (formState.traits[0] ?? "__NONE__")
+          }
           onChange={(event) => {
             const selectedValue = event.target.value;
             const selectedNone = selectedValue === "__NONE__";

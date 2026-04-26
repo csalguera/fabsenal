@@ -197,9 +197,7 @@ function normalizeFieldValue(value: unknown) {
 
 function formatModalFieldValue(label: string, value: unknown) {
   if (
-    (label === "Talent" ||
-      label === "Class" ||
-      label === "Functional Subtypes") &&
+    (label === "Talent" || label === "Class" || label === "Subtypes") &&
     Array.isArray(value)
   ) {
     const values = value
@@ -233,9 +231,6 @@ const ABILITY_TOKEN_MARKDOWN_MAP: Record<string, string> = {
   "{life}": "![Life](/images/life.png)",
 };
 
-const ABILITY_KEYWORD_REGEX =
-  /\b(Attack Reaction|Defense Reaction|Action|Instant|Reaction)\b/gi;
-
 function toAbilityMarkdown(value: string) {
   let formatted = value;
 
@@ -245,7 +240,7 @@ function toAbilityMarkdown(value: string) {
     formatted = formatted.replaceAll(token, markdownImage);
   }
 
-  return formatted.replace(ABILITY_KEYWORD_REGEX, "***$1***");
+  return formatted;
 }
 
 function filterBySearch(cards: Card[], query: string) {
@@ -1564,33 +1559,47 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                     />
                   </div>
                   <div className="deck-card-modal-data">
-                    {[
-                      { label: "Rarity", value: modalCard.rarity },
-                      ...(shouldShowMainDeckStats(modalCard)
-                        ? [
-                            { label: "Pitch", value: modalCard.pitch },
-                            { label: "Cost", value: modalCard.cost },
-                          ]
-                        : []),
-                      { label: "Color", value: modalCard.color },
-                      { label: "Power", value: modalCard.power },
-                      { label: "Defense", value: modalCard.defense },
-                      { label: "Intellect", value: modalCard.intellect },
-                      { label: "Life", value: modalCard.life },
-                      { label: "Types", value: modalCard.types },
-                      {
-                        label: "Functional Subtypes",
-                        value: modalCard.functionalSubtypes,
-                      },
-                      {
-                        label: "Non-Functional Subtypes",
-                        value: modalCard.nonFunctionalSubtypes,
-                      },
-                      { label: "Talent", value: modalCard.talent },
-                      { label: "Class", value: modalCard.class },
-                      { label: "Traits", value: modalCard.traits },
-                      { label: "Text Box", value: modalCard.textBox },
-                    ].map((field) => {
+                    {(() => {
+                      const isMainDeckCard = shouldShowMainDeckStats(modalCard);
+                      const shouldRenderNumericField = (
+                        value: number | null | undefined,
+                      ) => isMainDeckCard || (value ?? 0) > 0;
+                      const mergedSubtypes = Array.from(
+                        new Set([
+                          ...(modalCard.functionalSubtypes ?? []),
+                          ...(modalCard.nonFunctionalSubtypes ?? []),
+                        ]),
+                      );
+
+                      return [
+                        { label: "Rarity", value: modalCard.rarity },
+                        ...(shouldRenderNumericField(modalCard.pitch)
+                          ? [{ label: "Pitch", value: modalCard.pitch }]
+                          : []),
+                        ...(shouldRenderNumericField(modalCard.cost)
+                          ? [{ label: "Cost", value: modalCard.cost }]
+                          : []),
+                        { label: "Color", value: modalCard.color },
+                        ...(shouldRenderNumericField(modalCard.power)
+                          ? [{ label: "Power", value: modalCard.power }]
+                          : []),
+                        ...(shouldRenderNumericField(modalCard.defense)
+                          ? [{ label: "Defense", value: modalCard.defense }]
+                          : []),
+                        ...(shouldRenderNumericField(modalCard.intellect)
+                          ? [{ label: "Intellect", value: modalCard.intellect }]
+                          : []),
+                        ...(shouldRenderNumericField(modalCard.life)
+                          ? [{ label: "Life", value: modalCard.life }]
+                          : []),
+                        { label: "Types", value: modalCard.types },
+                        { label: "Subtypes", value: mergedSubtypes },
+                        { label: "Talent", value: modalCard.talent },
+                        { label: "Class", value: modalCard.class },
+                        { label: "Traits", value: modalCard.traits },
+                        { label: "Text Box", value: modalCard.textBox },
+                      ];
+                    })().map((field) => {
                       const displayValue = formatModalFieldValue(
                         field.label,
                         field.value,

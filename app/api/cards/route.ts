@@ -312,10 +312,7 @@ export async function GET(request: Request) {
       life: parseNumberFilter(getNullableSingle(params, "life")),
       types: getNullableSingle(params, "types"),
       functionalSubtypes: getNullableSingle(params, "functionalSubtypes"),
-      nonFunctionalSubtypes: getNullableSingle(
-        params,
-        "nonFunctionalSubtypes",
-      ),
+      nonFunctionalSubtypes: getNullableSingle(params, "nonFunctionalSubtypes"),
       talent: getNullableSingle(params, "talent"),
       class: getNullableSingle(params, "class"),
       traits: getNullableSingle(params, "traits"),
