@@ -2,7 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import CardImage from "../../../card-image";
-import { getCardById, getCardNavigation, normalizeFieldValue } from "../../_lib";
+import {
+  getCardById,
+  getCardNavigation,
+  normalizeFieldValue,
+} from "../../_lib";
 import {
   renderTokenizedInlineText,
   type InlineTokenMap,
@@ -69,9 +73,6 @@ const ABILITY_TOKEN_MARKDOWN_MAP: Record<string, string> = {
   "{life}": "![Life](/images/life.png)",
 };
 
-const ABILITY_KEYWORD_REGEX =
-  /\b(Attack Reaction|Defense Reaction|Action|Instant|Reaction)\b/gi;
-
 function toAbilityMarkdown(value: string) {
   let formatted = value;
 
@@ -81,14 +82,12 @@ function toAbilityMarkdown(value: string) {
     formatted = formatted.replaceAll(token, markdownImage);
   }
 
-  return formatted.replace(ABILITY_KEYWORD_REGEX, "***$1***");
+  return formatted;
 }
 
 function formatViewFieldValue(label: string, value: unknown) {
   if (
-    (label === "Talent" ||
-      label === "Class" ||
-      label === "Functional Subtypes") &&
+    (label === "Talent" || label === "Class" || label === "Subtypes") &&
     Array.isArray(value)
   ) {
     const values = value
@@ -122,6 +121,15 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
   const imageSrc = normalizeFieldValue(card.imageUrl);
   const shouldShowMainDeckStats = card.types?.some((type) =>
     MAIN_DECK_TYPES.has(type),
+  );
+  const isTokenCard = card.types?.includes("Token") ?? false;
+  const shouldRenderTokenStat = (value: number | null | undefined) =>
+    !isTokenCard || (value ?? 0) > 0;
+  const mergedSubtypes = Array.from(
+    new Set([
+      ...(card.functionalSubtypes ?? []),
+      ...(card.nonFunctionalSubtypes ?? []),
+    ]),
   );
 
   return (
@@ -160,7 +168,7 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
         <div className="card-view-data">
           {[
             { label: "Rarity", value: card.rarity },
-            ...(shouldShowMainDeckStats
+            ...(shouldShowMainDeckStats || shouldRenderTokenStat(card.pitch)
               ? [
                   { label: "Pitch", value: card.pitch },
                   { label: "Cost", value: card.cost },
@@ -168,17 +176,19 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
               : []),
             { label: "Color", value: card.color },
             { label: "Power", value: card.power },
-            { label: "Defense", value: card.defense },
-            { label: "Intellect", value: card.intellect },
-            { label: "Life", value: card.life },
+            ...(shouldRenderTokenStat(card.defense)
+              ? [{ label: "Defense", value: card.defense }]
+              : []),
+            ...(shouldRenderTokenStat(card.intellect)
+              ? [{ label: "Intellect", value: card.intellect }]
+              : []),
+            ...(shouldRenderTokenStat(card.life)
+              ? [{ label: "Life", value: card.life }]
+              : []),
             { label: "Types", value: card.types },
             {
-              label: "Functional Subtypes",
-              value: card.functionalSubtypes,
-            },
-            {
-              label: "Non-Functional Subtypes",
-              value: card.nonFunctionalSubtypes,
+              label: "Subtypes",
+              value: mergedSubtypes,
             },
             { label: "Talent", value: card.talent },
             { label: "Class", value: card.class },
@@ -208,7 +218,9 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
                     key={`ability-${index}`}
                     components={{
                       p: ({ children }) => (
-                        <span className="ability-markdown-line">{children}</span>
+                        <span className="ability-markdown-line">
+                          {children}
+                        </span>
                       ),
                       img: ({ src, alt }) => (
                         // eslint-disable-next-line @next/next/no-img-element
