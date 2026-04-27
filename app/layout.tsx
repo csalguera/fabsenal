@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fabsenal",
+  title: "Fabsenal - Flesh and Blood Deckbuilder",
   description: "Flesh and Blood deckbuilding application",
 };
 
