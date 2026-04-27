@@ -138,32 +138,6 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
 
   return (
     <section className="cards-section">
-      <div className="section-header">
-        <h2>{card.name}</h2>
-        <div className="card-item-actions">
-          <Link
-            href={previousViewHref}
-            className="btn btn-secondary"
-            aria-disabled={!navigation.previousId}
-          >
-            Prev
-          </Link>
-          <Link
-            href={nextViewHref}
-            className="btn btn-secondary"
-            aria-disabled={!navigation.nextId}
-          >
-            Next
-          </Link>
-          <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary">
-            Edit
-          </Link>
-          <Link href="/cards" className="btn btn-primary">
-            Back to Cards
-          </Link>
-        </div>
-      </div>
-
       <div className="card-view-layout">
         {imageSrc ? (
           <CardImage src={imageSrc} alt={card.name} width={320} height={480} />
@@ -171,6 +145,7 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
 
         <div className="card-view-data">
           {[
+            { label: "Name", value: card.name },
             { label: "Rarity", value: card.rarity },
             ...(shouldRenderNumericField(card.pitch)
               ? [{ label: "Pitch", value: card.pitch }]
@@ -245,6 +220,28 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             </div>
           ) : null}
         </div>
+      </div>
+      <div className="card-item-actions">
+        <Link
+          href={previousViewHref}
+          className="btn btn-secondary"
+          aria-disabled={!navigation.previousId}
+        >
+          Prev
+        </Link>
+        <Link
+          href={nextViewHref}
+          className="btn btn-secondary"
+          aria-disabled={!navigation.nextId}
+        >
+          Next
+        </Link>
+        <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary">
+          Edit
+        </Link>
+        <Link href="/cards/add" className="btn btn-primary">
+          Add a Card
+        </Link>
       </div>
     </section>
   );
