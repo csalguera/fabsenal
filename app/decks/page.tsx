@@ -1,5 +1,5 @@
-import DecksPageClient from "./decks-page-client";
+import DecksIndexClient from "./decks-index-client";
 
 export default function DecksPage() {
-  return <DecksPageClient />;
+  return <DecksIndexClient />;
 }

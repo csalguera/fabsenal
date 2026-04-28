@@ -642,6 +642,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
         saveGuestDeck({
           ...deck,
           id: deck.id || `guest-${crypto.randomUUID()}`,
+          ownerEmail: null,
         });
         setStatus("Deck saved in browser storage for 24 hours.");
         router.replace("/decks");

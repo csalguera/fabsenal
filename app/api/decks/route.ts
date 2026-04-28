@@ -62,6 +62,7 @@ function normalizeVisibility(value: unknown): DeckVisibility {
 function normalizeDeck(
   payload: Partial<DeckRecord>,
   ownerId: string,
+  ownerEmail: string | null = null,
 ): DeckRecord {
   const now = new Date().toISOString();
 
@@ -77,6 +78,7 @@ function normalizeDeck(
     cards: normalizeDeckCardEntries(payload.cards),
     visibility: normalizeVisibility(payload.visibility),
     ownerId,
+    ownerEmail,
     createdAt: typeof payload.createdAt === "string" ? payload.createdAt : now,
     updatedAt: now,
   };
@@ -172,6 +174,7 @@ export async function POST(request: Request) {
           visibility: "private",
         },
         authUser.uid,
+        authUser.email,
       );
 
       await decksCollection.insertOne(copiedDeck);
@@ -179,7 +182,7 @@ export async function POST(request: Request) {
       return NextResponse.json(copiedDeck, { status: 201 });
     }
 
-    const deck = normalizeDeck(payload, authUser.uid);
+    const deck = normalizeDeck(payload, authUser.uid, authUser.email);
     await decksCollection.insertOne(deck);
 
     return NextResponse.json(deck, { status: 201 });
@@ -229,6 +232,7 @@ export async function PUT(request: Request) {
     const nextDeck = normalizeDeck(
       { ...existingDeck, ...payload },
       authUser.uid,
+      authUser.email,
     );
 
     await decksCollection.updateOne({ id: payload.id }, { $set: nextDeck });

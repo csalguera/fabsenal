@@ -60,9 +60,10 @@ Create a `.env` file with these variables:
 - `/cards/add` - add a new card (protected route)
 - `/cards/[id]/view` - view a card
 - `/cards/[id]/edit` - edit a card (protected route)
-- `/decks` - deck list and management dashboard
+- `/decks` - public index of all decks with creators
+- `/decks/my-decks` - personal deck management (protected route)
 - `/decks/add` - create a deck
-- `/decks/[id]/edit` - edit a deck (protected route)
+- `/decks/[id]/edit` - edit or view a deck
 
 ### API Endpoints
 
@@ -72,7 +73,7 @@ Create a `.env` file with these variables:
 - `PUT /api/cards` - update a card
 - `DELETE /api/cards?id=...` - delete a card
 
-- `GET /api/decks` - list decks for the current user
+- `GET /api/decks` - list public decks and user's private decks (user's own decks only if authenticated)
 - `POST /api/decks` - create a deck or duplicate an existing deck
 - `DELETE /api/decks?id=...` - delete a deck
 
@@ -96,3 +97,5 @@ Create a `.env` file with these variables:
 
 - Card searches in the cards page are filterable by the supported stat and classification fields.
 - Multi-select filters for class, talent, and functional subtype use AND logic.
+- Decks can be marked public or private. Public decks appear on the `/decks` index for all users to discover and copy.
+- Deck creators are identified by their email username on public deck listings (everything before the @ symbol).

@@ -16,6 +16,7 @@ export type DeckRecord = {
   cards: DeckCardEntry[];
   visibility: DeckVisibility;
   ownerId: string | null;
+  ownerEmail: string | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -151,15 +151,20 @@ export default function DecksPageClient() {
   return (
     <section className="cards-section">
       <div className="section-header">
-        <h2 className="section-title">Decks</h2>
-        <Link
-          href="/decks/add"
-          className="btn btn-primary btn-icon"
-          aria-label="Create deck"
-          title="Create deck"
-        >
-          <Plus aria-hidden="true" focusable="false" />
-        </Link>
+        <h2 className="section-title">My Decks</h2>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <Link href="/decks" className="btn btn-primary">
+            Browse Decks
+          </Link>
+          <Link
+            href="/decks/add"
+            className="btn btn-primary btn-icon"
+            aria-label="Create deck"
+            title="Create deck"
+          >
+            <Plus aria-hidden="true" focusable="false" />
+          </Link>
+        </div>
       </div>
 
       {message ? <p className="form-message">{message}</p> : null}
