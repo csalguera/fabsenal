@@ -1202,9 +1202,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <CardImage
                                 src={card.imageUrl || "/file.svg"}
                                 alt={card.name}
-                                width={180}
-                                height={260}
-                                className="deck-image"
+                                width={140}
+                                height={210}
+                                className="deck-image deck-image-legal"
                               />
                             </div>
                           </button>
@@ -1306,9 +1306,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <CardImage
                                 src={card.imageUrl || "/file.svg"}
                                 alt={card.name}
-                                width={180}
-                                height={260}
-                                className="deck-image"
+                                width={140}
+                                height={210}
+                                className="deck-image deck-image-legal"
                               />
                             </div>
                           </button>
@@ -1412,9 +1412,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <CardImage
                                 src={card.imageUrl || "/file.svg"}
                                 alt={card.name}
-                                width={180}
-                                height={260}
-                                className="deck-image"
+                                width={140}
+                                height={210}
+                                className="deck-image deck-image-legal"
                               />
                             </div>
                           </button>
@@ -1519,9 +1519,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <CardImage
                                 src={card.imageUrl || "/file.svg"}
                                 alt={card.name}
-                                width={180}
-                                height={260}
-                                className="deck-image"
+                                width={140}
+                                height={210}
+                                className="deck-image deck-image-legal"
                               />
                             </div>
                           </button>

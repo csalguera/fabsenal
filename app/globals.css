@@ -394,11 +394,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    170deg,
-    rgba(36, 36, 36, 0.96) 0%,
-    rgba(18, 18, 18, 0.94) 100%
-  );
+  background: transparent;
+}
+
+.card-view-image-shell {
+  width: 320px;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: visible;
+  background: transparent;
+  flex: 0 0 auto;
 }
 
 .card-image-frame {
@@ -411,8 +419,15 @@ body {
 }
 
 .card-image {
-  width: 160px;
-  height: 240px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.card-view-image {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   display: block;
 }
@@ -550,7 +565,7 @@ body {
 
 .card-item h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .card-meta {
@@ -795,6 +810,16 @@ textarea:focus {
   object-fit: contain;
 }
 
+.deck-image-legal {
+  width: 140px;
+  height: 210px;
+}
+
+.deck-image-grid-legal-row .deck-image-card-media,
+.deck-image-grid-legal-main .deck-image-card-media {
+  min-height: 210px;
+}
+
 .deck-image-card-body {
   display: grid;
   gap: 0.2rem;
@@ -897,11 +922,11 @@ textarea:focus {
 }
 
 .deck-image-grid-legal-row {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .deck-image-grid-legal-main {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .deck-card-modal-backdrop {

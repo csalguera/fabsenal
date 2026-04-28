@@ -130,9 +130,19 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
   return (
     <section className="cards-section">
       <div className="card-view-layout">
-        {imageSrc ? (
-          <CardImage src={imageSrc} alt={card.name} width={320} height={480} />
-        ) : null}
+        <div className="card-view-image-shell">
+          {imageSrc ? (
+            <CardImage
+              src={imageSrc}
+              alt={card.name}
+              width={320}
+              height={480}
+              className="card-view-image"
+            />
+          ) : (
+            <span className="card-image-placeholder">No image</span>
+          )}
+        </div>
 
         <div className="card-view-data">
           {[
@@ -157,8 +167,8 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             ...(!isMainDeckCard && card.life != null
               ? [{ label: "Life", value: card.life }]
               : cardHasAllySubtype && shouldDisplayLife(card)
-              ? [{ label: "Life", value: card.life }]
-              : []),
+                ? [{ label: "Life", value: card.life }]
+                : []),
             { label: "Types", value: card.types },
             {
               label: "Subtypes",
