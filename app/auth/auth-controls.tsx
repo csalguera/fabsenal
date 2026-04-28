@@ -127,19 +127,25 @@ export default function AuthControls() {
     <div className="top-nav-auth-controls">
       <input
         type="email"
+        name="auth-email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         className="top-nav-auth-input"
         placeholder="Email"
-        autoComplete="off"
+        autoComplete="new-password"
+        autoCapitalize="off"
+        spellCheck={false}
       />
       <input
         type="password"
+        name="auth-password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         className="top-nav-auth-input"
         placeholder="Password"
-        autoComplete="off"
+        autoComplete="new-password"
+        autoCapitalize="off"
+        spellCheck={false}
       />
       <div className="top-nav-auth-actions">
         <button
