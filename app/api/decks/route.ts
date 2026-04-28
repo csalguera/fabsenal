@@ -79,6 +79,8 @@ function normalizeDeck(
     visibility: normalizeVisibility(payload.visibility),
     ownerId,
     ownerEmail,
+    sourceDeckId:
+      typeof payload.sourceDeckId === "string" ? payload.sourceDeckId : null,
     createdAt: typeof payload.createdAt === "string" ? payload.createdAt : now,
     updatedAt: now,
   };
@@ -88,6 +90,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const requestedId = searchParams.get("id");
+    const scope = searchParams.get("scope") ?? "all";
     const authUser = await getAuthUserFromRequest(request);
     const userId = authUser?.uid ?? null;
 
@@ -110,9 +113,16 @@ export async function GET(request: Request) {
       return NextResponse.json(normalizeDeckForResponse(deck));
     }
 
-    const query = userId
-      ? { $or: [{ visibility: "public" }, { ownerId: userId }] }
-      : { visibility: "public" };
+    const query =
+      scope === "public"
+        ? { visibility: "public" }
+        : scope === "mine"
+          ? userId
+            ? { ownerId: userId }
+            : { ownerId: "__none__" }
+          : userId
+            ? { $or: [{ visibility: "public" }, { ownerId: userId }] }
+            : { visibility: "public" };
 
     const decks = await decksCollection
       .find<DeckDocument>(query)
@@ -149,6 +159,15 @@ export async function POST(request: Request) {
     const decksCollection = await getDecksCollection();
 
     if (payload.sourceDeckId) {
+      const existingCopy = await decksCollection.findOne<DeckDocument>({
+        ownerId: authUser.uid,
+        sourceDeckId: payload.sourceDeckId,
+      });
+
+      if (existingCopy) {
+        return NextResponse.json(normalizeDeckForResponse(existingCopy));
+      }
+
       const sourceDeck = await decksCollection.findOne<DeckDocument>({
         id: payload.sourceDeckId,
       });
@@ -172,6 +191,7 @@ export async function POST(request: Request) {
           heroCardId: sourceDeck.heroCardId,
           cards: sourceDeck.cards,
           visibility: "private",
+          sourceDeckId: sourceDeck.id,
         },
         authUser.uid,
         authUser.email,

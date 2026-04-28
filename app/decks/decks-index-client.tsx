@@ -17,11 +17,10 @@ export default function DecksIndexClient() {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadDecks = async (token: string | null) => {
+  const loadDecks = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/decks", {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      const response = await fetch("/api/decks?scope=public", {
         cache: "no-store",
       });
 
@@ -43,11 +42,11 @@ export default function DecksIndexClient() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      void loadDecks(idToken ?? null);
+      void loadDecks();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [idToken]);
+  }, []);
 
   const copyDeck = async (deck: DeckRecord) => {
     if (!idToken) {

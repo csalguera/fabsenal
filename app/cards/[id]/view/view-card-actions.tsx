@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PencilLine } from "lucide-react";
+import { ArrowBigLeft, ArrowBigRight, Copy, PencilLine } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
 
 type ViewCardActionsProps = {
@@ -25,17 +25,17 @@ export default function ViewCardActions({
     <div className="card-item-actions">
       <Link
         href={previousViewHref}
-        className="btn btn-primary"
+        className="btn btn-primary btn-icon"
         aria-disabled={!hasPrevious}
       >
-        Prev
+        <ArrowBigLeft aria-hidden="true" focusable="false" />
       </Link>
       <Link
         href={nextViewHref}
-        className="btn btn-primary"
+        className="btn btn-primary btn-icon"
         aria-disabled={!hasNext}
       >
-        Next
+        <ArrowBigRight aria-hidden="true" focusable="false" />
       </Link>
       {isAdmin ? (
         <>
@@ -47,12 +47,13 @@ export default function ViewCardActions({
           >
             <PencilLine aria-hidden="true" focusable="false" />
           </Link>
-          {/* Duplicate sends the admin to a prefilled add-card draft. */}
           <Link
             href={`/cards/add?duplicateFrom=${encodeURIComponent(cardId)}`}
-            className="btn btn-primary"
+            className="btn btn-primary btn-icon"
+            aria-label="Duplicate card"
+            title="Duplicate card"
           >
-            Duplicate
+            <Copy aria-hidden="true" focusable="false" />
           </Link>
         </>
       ) : null}

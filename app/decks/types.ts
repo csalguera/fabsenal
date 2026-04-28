@@ -17,6 +17,7 @@ export type DeckRecord = {
   visibility: DeckVisibility;
   ownerId: string | null;
   ownerEmail: string | null;
+  sourceDeckId?: string | null;
   createdAt: string;
   updatedAt: string;
 };

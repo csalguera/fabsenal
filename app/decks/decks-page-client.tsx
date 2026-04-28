@@ -18,10 +18,13 @@ export default function DecksPageClient() {
   const [dbDecks, setDbDecks] = useState<DeckRecord[]>([]);
   const [guestDecks, setGuestDecks] = useState<GuestDeckRecord[]>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const [pendingDeleteDeck, setPendingDeleteDeck] = useState<SavedDeck | null>(
+    null,
+  );
 
   const loadDecks = async (token: string | null) => {
     try {
-      const response = await fetch("/api/decks", {
+      const response = await fetch("/api/decks?scope=mine", {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         cache: "no-store",
       });
@@ -85,10 +88,6 @@ export default function DecksPageClient() {
   };
 
   const removeDeck = async (deck: SavedDeck) => {
-    if (!window.confirm(`Delete deck "${deck.name}"?`)) {
-      return;
-    }
-
     if (isGuestDeck(deck) || !deck.ownerId) {
       deleteGuestDeck(deck.id);
       setGuestDecks(loadGuestDecks());
@@ -113,6 +112,16 @@ export default function DecksPageClient() {
       console.error("Failed to delete deck", error);
       setMessage("Unable to delete deck.");
     }
+  };
+
+  const confirmRemoveDeck = async () => {
+    if (!pendingDeleteDeck) {
+      return;
+    }
+
+    const deckToDelete = pendingDeleteDeck;
+    setPendingDeleteDeck(null);
+    await removeDeck(deckToDelete);
   };
 
   const copyDeck = async (deck: DeckRecord) => {
@@ -213,7 +222,7 @@ export default function DecksPageClient() {
                     <button
                       type="button"
                       className="btn btn-danger btn-icon"
-                      onClick={() => void removeDeck(deck)}
+                      onClick={() => setPendingDeleteDeck(deck)}
                       aria-label="Delete deck"
                       title="Delete deck"
                     >
@@ -245,6 +254,46 @@ export default function DecksPageClient() {
           ))}
         </ul>
       )}
+
+      {pendingDeleteDeck ? (
+        <div
+          className="deck-card-modal-backdrop"
+          role="presentation"
+          onClick={() => setPendingDeleteDeck(null)}
+        >
+          <div
+            className="deck-card-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-deck-title"
+            aria-describedby="delete-deck-description"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="deck-card-modal-header">
+              <h3 id="delete-deck-title">Delete deck?</h3>
+            </div>
+            <p id="delete-deck-description" className="empty-state">
+              Delete “{pendingDeleteDeck.name}”? This action cannot be undone.
+            </p>
+            <div className="filters-dialog-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setPendingDeleteDeck(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => void confirmRemoveDeck()}
+              >
+                Delete Deck
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

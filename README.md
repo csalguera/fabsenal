@@ -73,7 +73,8 @@ Create a `.env` file with these variables:
 - `PUT /api/cards` - update a card
 - `DELETE /api/cards?id=...` - delete a card
 
-- `GET /api/decks` - list public decks and user's private decks (user's own decks only if authenticated)
+- `GET /api/decks?scope=public` - list public decks for the public index
+- `GET /api/decks?scope=mine` - list the signed-in user's decks for the personal deck page
 - `POST /api/decks` - create a deck or duplicate an existing deck
 - `DELETE /api/decks?id=...` - delete a deck
 
@@ -99,3 +100,4 @@ Create a `.env` file with these variables:
 - Multi-select filters for class, talent, and functional subtype use AND logic.
 - Decks can be marked public or private. Public decks appear on the `/decks` index for all users to discover and copy.
 - Deck creators are identified by their email username on public deck listings (everything before the @ symbol).
+- Copying a public deck reuses the existing personal copy if one already exists, so `/decks/my-decks` shows a single instance.

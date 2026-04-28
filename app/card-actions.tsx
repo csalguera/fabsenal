@@ -541,15 +541,11 @@ export default function CardActions({
         type="button"
         onClick={handleDelete}
         disabled={isSubmitting}
-        className="btn btn-danger btn-icon"
+        className="btn btn-danger"
         aria-label={isSubmitting ? "Deleting card" : "Delete card"}
         title={isSubmitting ? "Deleting card" : "Delete card"}
       >
-        {isSubmitting ? (
-          <span aria-hidden="true">…</span>
-        ) : (
-          <Trash2 aria-hidden="true" focusable="false" />
-        )}
+        {isSubmitting ? <span aria-hidden="true">…</span> : "Delete"}
       </button>
       {message ? <p className="form-message">{message}</p> : null}
     </form>
