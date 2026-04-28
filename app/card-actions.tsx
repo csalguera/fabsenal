@@ -19,6 +19,7 @@ import {
   CARD_TRAIT_OPTIONS,
   type PitchInputValue,
 } from "./card-form-shared";
+import DeleteConfirmModal from "./delete-confirm-modal";
 
 type CardActionsProps = {
   card: Partial<Card> & { id: string; name: string };
@@ -85,6 +86,7 @@ export default function CardActions({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const id = card.id;
 
@@ -231,7 +233,7 @@ export default function CardActions({
     }
   };
 
-  const handleDelete = async () => {
+  const requestDelete = () => {
     if (!isAdmin) {
       setMessage("Only admins can delete cards.");
       return;
@@ -242,10 +244,11 @@ export default function CardActions({
       return;
     }
 
-    const confirmed = window.confirm("Delete this card?");
-    if (!confirmed) {
-      return;
-    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    setIsDeleteModalOpen(false);
 
     setIsSubmitting(true);
     setMessage(null);
@@ -538,7 +541,7 @@ export default function CardActions({
       </button>
       <button
         type="button"
-        onClick={handleDelete}
+        onClick={requestDelete}
         disabled={isSubmitting}
         className="btn btn-danger"
         aria-label={isSubmitting ? "Deleting card" : "Delete card"}
@@ -546,6 +549,15 @@ export default function CardActions({
       >
         {isSubmitting ? <span aria-hidden="true">…</span> : "Delete"}
       </button>
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete card?"
+        description="This action cannot be undone."
+        confirmLabel="Delete Card"
+        isSubmitting={isSubmitting}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
       {message ? <p className="form-message">{message}</p> : null}
     </form>
   );

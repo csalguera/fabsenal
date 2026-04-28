@@ -1,8 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowBigLeft, ArrowBigRight, Copy, PencilLine } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowBigLeft,
+  ArrowBigRight,
+  Copy,
+  PencilLine,
+  Trash2,
+} from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
+import DeleteConfirmModal from "@/app/delete-confirm-modal";
 
 type ViewCardActionsProps = {
   previousViewHref: string;
@@ -19,7 +28,35 @@ export default function ViewCardActions({
   hasNext,
   cardId,
 }: ViewCardActionsProps) {
-  const { isAdmin } = useAuthSession();
+  const router = useRouter();
+  const { idToken, isAdmin } = useAuthSession();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setIsDeleteModalOpen(false);
+
+    try {
+      const response = await fetch(
+        `/api/cards?id=${encodeURIComponent(cardId)}`,
+        {
+          method: "DELETE",
+          headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+
+      router.replace("/cards");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete card", error);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="card-item-actions">
@@ -55,8 +92,32 @@ export default function ViewCardActions({
           >
             <Copy aria-hidden="true" focusable="false" />
           </Link>
+          <button
+            type="button"
+            className="btn btn-danger btn-icon"
+            onClick={() => setIsDeleteModalOpen(true)}
+            disabled={isDeleting}
+            aria-label={isDeleting ? "Deleting card" : "Delete card"}
+            title={isDeleting ? "Deleting card" : "Delete card"}
+          >
+            {isDeleting ? (
+              <span aria-hidden="true">...</span>
+            ) : (
+              <Trash2 aria-hidden="true" focusable="false" />
+            )}
+          </button>
         </>
       ) : null}
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete card?"
+        description="This action cannot be undone."
+        confirmLabel="Delete Card"
+        isSubmitting={isDeleting}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

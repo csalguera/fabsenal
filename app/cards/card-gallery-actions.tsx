@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, PencilLine, Trash2, Copy } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
+import DeleteConfirmModal from "@/app/delete-confirm-modal";
 
 type CardGalleryActionsProps = {
   id: string;
@@ -14,14 +15,11 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
   const router = useRouter();
   const { idToken, isAdmin } = useAuthSession();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDelete = async () => {
-    const confirmed = window.confirm("Delete this card?");
-    if (!confirmed) {
-      return;
-    }
-
     setIsDeleting(true);
+    setIsDeleteModalOpen(false);
 
     try {
       const response = await fetch(`/api/cards?id=${encodeURIComponent(id)}`, {
@@ -72,7 +70,7 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
           <button
             type="button"
             className="btn btn-danger btn-icon"
-            onClick={handleDelete}
+            onClick={() => setIsDeleteModalOpen(true)}
             disabled={isDeleting}
             aria-label={isDeleting ? "Deleting card" : "Delete card"}
             title={isDeleting ? "Deleting card" : "Delete card"}
@@ -85,6 +83,16 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
           </button>
         </>
       ) : null}
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete card?"
+        description="This action cannot be undone."
+        confirmLabel="Delete Card"
+        isSubmitting={isDeleting}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

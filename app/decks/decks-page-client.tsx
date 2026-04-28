@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Eye, PencilLine, Plus, Trash2 } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
+import DeleteConfirmModal from "@/app/delete-confirm-modal";
 import { clearGuestDecks, deleteGuestDeck, loadGuestDecks } from "./storage";
 import type { DeckRecord, GuestDeckRecord } from "./types";
 
@@ -21,6 +22,7 @@ export default function DecksPageClient() {
   const [pendingDeleteDeck, setPendingDeleteDeck] = useState<SavedDeck | null>(
     null,
   );
+  const [isDeletingDeck, setIsDeletingDeck] = useState(false);
 
   const loadDecks = async (token: string | null) => {
     try {
@@ -121,7 +123,9 @@ export default function DecksPageClient() {
 
     const deckToDelete = pendingDeleteDeck;
     setPendingDeleteDeck(null);
+    setIsDeletingDeck(true);
     await removeDeck(deckToDelete);
+    setIsDeletingDeck(false);
   };
 
   const copyDeck = async (deck: DeckRecord) => {
@@ -255,45 +259,19 @@ export default function DecksPageClient() {
         </ul>
       )}
 
-      {pendingDeleteDeck ? (
-        <div
-          className="deck-card-modal-backdrop"
-          role="presentation"
-          onClick={() => setPendingDeleteDeck(null)}
-        >
-          <div
-            className="deck-card-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-deck-title"
-            aria-describedby="delete-deck-description"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="deck-card-modal-header">
-              <h3 id="delete-deck-title">Delete deck?</h3>
-            </div>
-            <p id="delete-deck-description" className="empty-state">
-              Delete “{pendingDeleteDeck.name}”? This action cannot be undone.
-            </p>
-            <div className="filters-dialog-actions">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setPendingDeleteDeck(null)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={() => void confirmRemoveDeck()}
-              >
-                Delete Deck
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <DeleteConfirmModal
+        open={Boolean(pendingDeleteDeck)}
+        title="Delete deck?"
+        description={
+          pendingDeleteDeck
+            ? `Delete "${pendingDeleteDeck.name}"? This action cannot be undone.`
+            : "This action cannot be undone."
+        }
+        confirmLabel="Delete Deck"
+        isSubmitting={isDeletingDeck}
+        onCancel={() => setPendingDeleteDeck(null)}
+        onConfirm={() => void confirmRemoveDeck()}
+      />
     </section>
   );
 }
