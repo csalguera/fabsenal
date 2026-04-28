@@ -223,7 +223,7 @@ export default function AddCardButton({
   };
 
   return (
-    <form onSubmit={handleAddCard} className="card-form">
+    <form onSubmit={handleAddCard} className="card-form" autoComplete="off">
       <p className="field-row">
         <label htmlFor="name">Name </label>
         <input

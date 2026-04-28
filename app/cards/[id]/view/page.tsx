@@ -2,6 +2,14 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import CardImage from "../../../card-image";
 import {
+  hasAllySubtype,
+  isMainDeckDisplayCard,
+  shouldDisplayCost,
+  shouldDisplayDefense,
+  shouldDisplayLife,
+  shouldDisplayPitch,
+} from "../../../card-display";
+import {
   getCardById,
   getCardNavigation,
   normalizeFieldValue,
@@ -15,15 +23,6 @@ import {
 type ViewCardPageProps = {
   params: Promise<{ id: string }>;
 };
-
-const MAIN_DECK_TYPES = new Set([
-  "Action",
-  "Attack Reaction",
-  "Block",
-  "Instant",
-  "Defense Reaction",
-  "Resource",
-]);
 
 const INLINE_TOKEN_MAP: InlineTokenMap = {
   "{resource}": {
@@ -119,16 +118,8 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
     : `/cards/${card.id}/view`;
 
   const imageSrc = normalizeFieldValue(card.imageUrl);
-  const isMainDeckCard = card.types?.some((type) => MAIN_DECK_TYPES.has(type));
-  const hasAllySubtype = [
-    ...(card.functionalSubtypes ?? []),
-    ...(card.nonFunctionalSubtypes ?? []),
-  ].some((subtype) => subtype.toLowerCase() === "ally");
-  const shouldRenderNumericField = (value: number | null | undefined) =>
-    Boolean(isMainDeckCard) || (value ?? 0) > 0;
-  const shouldRenderDefenseField = shouldRenderNumericField(card.defense);
-  const shouldRenderIntellectField =
-    !isMainDeckCard && shouldRenderNumericField(card.intellect);
+  const isMainDeckCard = isMainDeckDisplayCard(card);
+  const cardHasAllySubtype = hasAllySubtype(card);
   const mergedSubtypes = Array.from(
     new Set([
       ...(card.functionalSubtypes ?? []),
@@ -147,23 +138,25 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
           {[
             { label: "Name", value: card.name },
             { label: "Rarity", value: card.rarity },
-            ...(shouldRenderNumericField(card.pitch)
+            ...(shouldDisplayPitch(card)
               ? [{ label: "Pitch", value: card.pitch }]
               : []),
-            ...(shouldRenderNumericField(card.cost)
+            ...(shouldDisplayCost(card)
               ? [{ label: "Cost", value: card.cost }]
               : []),
             { label: "Color", value: card.color },
-            ...(shouldRenderNumericField(card.power)
+            ...(card.power != null
               ? [{ label: "Power", value: card.power }]
               : []),
-            ...(shouldRenderDefenseField && !hasAllySubtype
+            ...(shouldDisplayDefense(card)
               ? [{ label: "Defense", value: card.defense }]
               : []),
-            ...(shouldRenderIntellectField
+            ...(!isMainDeckCard && card.intellect != null
               ? [{ label: "Intellect", value: card.intellect }]
               : []),
-            ...(shouldRenderNumericField(card.life)
+            ...(!isMainDeckCard && card.life != null
+              ? [{ label: "Life", value: card.life }]
+              : cardHasAllySubtype && shouldDisplayLife(card)
               ? [{ label: "Life", value: card.life }]
               : []),
             { label: "Types", value: card.types },
@@ -204,10 +197,11 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
                         </span>
                       ),
                       img: ({ src, alt }) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={src ?? ""}
+                        <CardImage
+                          src={typeof src === "string" ? src : "/file.svg"}
                           alt={alt ?? ""}
+                          width={14}
+                          height={14}
                           className="ability-token-icon"
                         />
                       ),

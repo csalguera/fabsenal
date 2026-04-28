@@ -42,8 +42,11 @@ export default function DecksPageClient() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadDecks(idToken ?? null);
+    const timeoutId = window.setTimeout(() => {
+      void loadDecks(idToken ?? null);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [idToken]);
 
   const migrateGuestDecks = async () => {

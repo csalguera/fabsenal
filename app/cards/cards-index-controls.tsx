@@ -116,6 +116,7 @@ export default function CardsIndexControls({
     <div className="cards-toolbar">
       <form
         className="cards-toolbar-row"
+        autoComplete="off"
         onSubmit={(event) => {
           event.preventDefault();
           applyQuery();
@@ -128,6 +129,7 @@ export default function CardsIndexControls({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search any card field"
+            autoComplete="off"
           />
         </label>
 
@@ -140,6 +142,7 @@ export default function CardsIndexControls({
             id="cards-limit"
             value={limit}
             onChange={(event) => setLimit(event.target.value)}
+            autoComplete="off"
           >
             {LIMIT_OPTIONS.map((option) => (
               <option key={option} value={option}>
@@ -196,6 +199,7 @@ export default function CardsIndexControls({
                 id="filter-name"
                 value={filters.name}
                 onChange={(event) => setFilterValue("name", event.target.value)}
+                autoComplete="off"
               />
             </label>
 
@@ -207,6 +211,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("pitch", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 <option value="0">0</option>
@@ -223,6 +228,7 @@ export default function CardsIndexControls({
                 type="number"
                 value={filters.cost}
                 onChange={(event) => setFilterValue("cost", event.target.value)}
+                autoComplete="off"
               />
             </label>
 
@@ -234,6 +240,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("color", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 <option value="red">Red</option>
@@ -251,6 +258,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("power", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
 
@@ -263,6 +271,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("defense", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
 
@@ -275,6 +284,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("intellect", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
 
@@ -285,6 +295,7 @@ export default function CardsIndexControls({
                 type="number"
                 value={filters.life}
                 onChange={(event) => setFilterValue("life", event.target.value)}
+                autoComplete="off"
               />
             </label>
 
@@ -296,6 +307,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("types", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_TYPE_OPTIONS.map((option) => (
@@ -317,6 +329,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("functionalSubtypes", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
@@ -338,6 +351,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("nonFunctionalSubtypes", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_NON_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
@@ -356,6 +370,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("talent", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_TALENT_OPTIONS.map((option) => (
@@ -374,6 +389,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("class", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_CLASS_OPTIONS.map((option) => (
@@ -392,6 +408,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("traits", event.target.value)
                 }
+                autoComplete="off"
               >
                 <option value="">Any</option>
                 {CARD_TRAIT_OPTIONS.map((option) => (
@@ -410,6 +427,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("textBox", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
 
@@ -421,6 +439,7 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("abilities", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
 
@@ -432,9 +451,9 @@ export default function CardsIndexControls({
                 onChange={(event) =>
                   setFilterValue("imageUrl", event.target.value)
                 }
+                autoComplete="off"
               />
             </label>
-
           </div>
 
           <div className="filters-dialog-actions">

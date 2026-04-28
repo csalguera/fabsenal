@@ -100,8 +100,20 @@ body {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+}
+
+.top-nav-auth-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: nowrap;
+}
+
+.top-nav-auth-actions .btn {
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .top-nav-auth-input {
@@ -118,6 +130,24 @@ body {
   font-size: 0.85rem;
   color: #21486a;
   font-weight: 600;
+}
+
+.top-nav-google-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(32, 56, 94, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.top-nav-google-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .app-shell {
@@ -341,7 +371,7 @@ body {
   width: 160px;
   height: 240px;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,6 +380,15 @@ body {
     rgba(225, 235, 246, 0.9) 0%,
     rgba(245, 249, 255, 0.85) 100%
   );
+}
+
+.card-image-frame {
+  position: relative;
+  display: inline-block;
+  transform-style: preserve-3d;
+  overflow: visible;
+  will-change: transform;
+  z-index: 1;
 }
 
 .card-image {
@@ -361,9 +400,6 @@ body {
 
 .ability-markdown-line {
   display: inline;
-  /* flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem; */
 }
 
 .ability-markdown-line img {
@@ -376,6 +412,73 @@ body {
   width: 14px;
   height: 14px;
   vertical-align: text-bottom;
+}
+
+.card-view-loading {
+  align-items: flex-start;
+}
+
+.card-view-loading-image,
+.card-view-loading-line,
+.card-view-loading-chip {
+  background: linear-gradient(
+    90deg,
+    rgba(225, 233, 244, 0.95) 0%,
+    rgba(235, 242, 250, 0.92) 45%,
+    rgba(225, 233, 244, 0.95) 100%
+  );
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.25s linear infinite;
+}
+
+.card-view-loading-image {
+  width: 320px;
+  height: 480px;
+  border-radius: 18px;
+}
+
+.card-view-loading-data {
+  flex: 1;
+  display: grid;
+  gap: 0.7rem;
+  padding-top: 0.25rem;
+}
+
+.card-view-loading-line {
+  height: 1.05rem;
+  border-radius: 999px;
+}
+
+.card-view-loading-line-lg {
+  width: min(100%, 18rem);
+  height: 1.45rem;
+}
+
+.card-view-loading-line-sm {
+  width: min(100%, 11rem);
+}
+
+.card-view-loading-actions {
+  margin-top: 1rem;
+}
+
+.card-view-loading-chip {
+  width: 5rem;
+  height: 2.15rem;
+  border-radius: 999px;
+}
+
+.card-view-loading-chip-lg {
+  width: 7rem;
+}
+
+@keyframes loading-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .abilities-list {
@@ -665,7 +768,7 @@ textarea:focus {
     rgba(245, 249, 255, 0.85) 100%
   );
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .deck-image {
@@ -1035,6 +1138,12 @@ img {
   }
 
   .top-nav-auth-controls {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .top-nav-auth-actions {
     width: 100%;
     justify-content: flex-start;
   }

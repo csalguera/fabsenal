@@ -49,7 +49,6 @@ export function isTokenLikeCard(card: Card) {
     return false;
   }
 
-  // Basic rarity heroes must still be excluded from inventory logic.
   if (isHeroCard(card)) {
     return false;
   }

@@ -22,6 +22,14 @@ import {
   validateDeck,
 } from "./rules";
 import { useAuthSession } from "@/app/auth/session-provider";
+import {
+  hasAllySubtype,
+  isMainDeckDisplayCard,
+  shouldDisplayCost,
+  shouldDisplayDefense,
+  shouldDisplayLife,
+  shouldDisplayPitch,
+} from "@/app/card-display";
 import { getGuestDeckById, saveGuestDeck } from "./storage";
 import type {
   DeckCardEntry,
@@ -53,15 +61,6 @@ const INITIAL_DECK: EditableDeck = {
   cards: [],
   visibility: "private",
 };
-
-const MAIN_DECK_TYPES = new Set([
-  "Action",
-  "Attack Reaction",
-  "Block",
-  "Instant",
-  "Defense Reaction",
-  "Resource",
-]);
 
 const INLINE_TOKEN_MAP: InlineTokenMap = {
   "{resource}": {
@@ -101,6 +100,31 @@ const INLINE_TOKEN_MAP: InlineTokenMap = {
     height: 14,
   },
 };
+
+const EQUIPMENT_SLOT_ORDER = [
+  "Weapon",
+  "Off-hand",
+  "Head",
+  "Chest",
+  "Arms",
+  "Legs",
+] as const;
+
+function getEquipmentSlotRank(card: Card) {
+  if (card.types.includes("Weapon")) {
+    return 0;
+  }
+
+  if ((card.functionalSubtypes ?? []).includes("Off-Hand")) {
+    return 1;
+  }
+
+  const slotIndex = EQUIPMENT_SLOT_ORDER.findIndex((slot) =>
+    (card.nonFunctionalSubtypes ?? []).includes(slot as never),
+  );
+
+  return slotIndex >= 0 ? slotIndex + 2 : 99;
+}
 
 function toCardMap(cards: Card[]) {
   return new Map(cards.map((card) => [card.id, card]));
@@ -211,7 +235,7 @@ function formatModalFieldValue(label: string, value: unknown) {
 }
 
 function shouldShowMainDeckStats(card: Card) {
-  return card.types.some((type) => MAIN_DECK_TYPES.has(type));
+  return isMainDeckDisplayCard(card);
 }
 
 function isWeaponCard(card: Card) {
@@ -446,7 +470,18 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
   );
 
   const selectedEquipmentAndWeapons = useMemo(
-    () => selectedCards.filter(({ card }) => isEquipmentOrWeapon(card)),
+    () =>
+      selectedCards
+        .filter(({ card }) => isEquipmentOrWeapon(card))
+        .sort((a, b) => {
+          const slotOrder =
+            getEquipmentSlotRank(a.card) - getEquipmentSlotRank(b.card);
+          if (slotOrder !== 0) {
+            return slotOrder;
+          }
+
+          return byName(a.card, b.card);
+        }),
     [selectedCards],
   );
 
@@ -812,6 +847,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         name: event.target.value,
                       }))
                     }
+                    autoComplete="off"
                   />
                 </p>
 
@@ -1145,6 +1181,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         setLegalWeaponsPage(1);
                       }}
                       placeholder="Search weapons"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="deck-image-grid deck-image-grid-legal-row">
@@ -1248,6 +1285,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         setLegalEquipmentPage(1);
                       }}
                       placeholder="Search equipment"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="deck-image-grid deck-image-grid-legal-row">
@@ -1353,6 +1391,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         setLegalMainDeckPage(1);
                       }}
                       placeholder="Search main deck cards"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="deck-image-grid deck-image-grid-legal-main">
@@ -1459,6 +1498,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         setLegalTokensPage(1);
                       }}
                       placeholder="Search tokens"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="deck-image-grid deck-image-grid-legal-row">
@@ -1589,19 +1629,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-card-modal-data">
                     {(() => {
                       const isMainDeckCard = shouldShowMainDeckStats(modalCard);
-                      const hasAllySubtype = [
-                        ...(modalCard.functionalSubtypes ?? []),
-                        ...(modalCard.nonFunctionalSubtypes ?? []),
-                      ].some((subtype) => subtype.toLowerCase() === "ally");
-                      const shouldRenderNumericField = (
-                        value: number | null | undefined,
-                      ) => isMainDeckCard || (value ?? 0) > 0;
-                      const shouldRenderDefenseField = shouldRenderNumericField(
-                        modalCard.defense,
-                      );
-                      const shouldRenderIntellectField =
-                        !isMainDeckCard &&
-                        shouldRenderNumericField(modalCard.intellect);
+                      const cardHasAllySubtype = hasAllySubtype(modalCard);
                       const mergedSubtypes = Array.from(
                         new Set([
                           ...(modalCard.functionalSubtypes ?? []),
@@ -1611,25 +1639,27 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
 
                       return [
                         { label: "Rarity", value: modalCard.rarity },
-                        ...(shouldRenderNumericField(modalCard.pitch)
+                        ...(shouldDisplayPitch(modalCard)
                           ? [{ label: "Pitch", value: modalCard.pitch }]
                           : []),
-                        ...(shouldRenderNumericField(modalCard.cost)
+                        ...(shouldDisplayCost(modalCard)
                           ? [{ label: "Cost", value: modalCard.cost }]
                           : []),
                         { label: "Color", value: modalCard.color },
-                        ...(shouldRenderNumericField(modalCard.power)
+                        ...(modalCard.power != null
                           ? [{ label: "Power", value: modalCard.power }]
                           : []),
-                        ...(shouldRenderDefenseField && !hasAllySubtype
+                        ...(shouldDisplayDefense(modalCard)
                           ? [{ label: "Defense", value: modalCard.defense }]
                           : []),
-                        ...(shouldRenderIntellectField
+                        ...(!isMainDeckCard && modalCard.intellect != null
                           ? [{ label: "Intellect", value: modalCard.intellect }]
                           : []),
-                        ...(shouldRenderNumericField(modalCard.life)
+                        ...(!isMainDeckCard && modalCard.life != null
                           ? [{ label: "Life", value: modalCard.life }]
-                          : []),
+                          : cardHasAllySubtype && shouldDisplayLife(modalCard)
+                            ? [{ label: "Life", value: modalCard.life }]
+                            : []),
                         { label: "Types", value: modalCard.types },
                         { label: "Subtypes", value: mergedSubtypes },
                         { label: "Talent", value: modalCard.talent },
@@ -1672,10 +1702,15 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                                   </span>
                                 ),
                                 img: ({ src, alt }) => (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={src ?? ""}
+                                  <CardImage
+                                    src={
+                                      typeof src === "string"
+                                        ? src
+                                        : "/file.svg"
+                                    }
                                     alt={alt ?? ""}
+                                    width={14}
+                                    height={14}
                                     className="ability-token-icon"
                                   />
                                 ),

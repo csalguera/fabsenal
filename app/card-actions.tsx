@@ -280,7 +280,11 @@ export default function CardActions({
   };
 
   return (
-    <div className="card-actions">
+    <form
+      className="card-actions"
+      autoComplete="off"
+      onSubmit={(event) => event.preventDefault()}
+    >
       <p className="field-row">
         <label htmlFor={`update-name-${id}`}>Name </label>
         <input
@@ -557,6 +561,6 @@ export default function CardActions({
         Delete
       </button>
       {message ? <p className="form-message">{message}</p> : null}
-    </div>
+    </form>
   );
 }

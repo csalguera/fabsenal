@@ -165,7 +165,6 @@ function normalizeCardShape(
     card.nonFunctionalSubtypes,
   );
 
-  // Backward compatibility for legacy records that still store a combined subtypes array.
   const legacySubtypes = normalizeStringArray(
     (card as { subtypes?: unknown }).subtypes,
   );
@@ -207,7 +206,6 @@ function normalizeCardShape(
   const normalizedClass = normalizeStringArray(card.class);
   if (normalizedClass.length > 0) {
     normalized.class = normalizedClass;
-    // If Generic is selected, clear talent
     if (normalizedClass.includes("Generic")) {
       normalized.talent = null;
     }
