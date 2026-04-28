@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
 import CardImage from "./card-image";
 import { useAuthSession } from "@/app/auth/session-provider";
 import type {
