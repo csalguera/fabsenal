@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Eye, PencilLine, Plus, Trash2 } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
 import { clearGuestDecks, deleteGuestDeck, loadGuestDecks } from "./storage";
 import type { DeckRecord, GuestDeckRecord } from "./types";
@@ -151,8 +152,13 @@ export default function DecksPageClient() {
     <section className="cards-section">
       <div className="section-header">
         <h2 className="section-title">Decks</h2>
-        <Link href="/decks/add" className="btn btn-primary">
-          Create Deck
+        <Link
+          href="/decks/add"
+          className="btn btn-primary btn-icon"
+          aria-label="Create deck"
+          title="Create deck"
+        >
+          <Plus aria-hidden="true" focusable="false" />
         </Link>
       </div>
 
@@ -193,25 +199,31 @@ export default function DecksPageClient() {
                   <>
                     <Link
                       href={`/decks/${deck.id}/edit`}
-                      className="btn btn-primary"
+                      className="btn btn-primary btn-icon"
+                      aria-label="Edit deck"
+                      title="Edit deck"
                     >
-                      Edit
+                      <PencilLine aria-hidden="true" focusable="false" />
                     </Link>
                     <button
                       type="button"
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-icon"
                       onClick={() => void removeDeck(deck)}
+                      aria-label="Delete deck"
+                      title="Delete deck"
                     >
-                      Delete
+                      <Trash2 aria-hidden="true" focusable="false" />
                     </button>
                   </>
                 ) : (
                   <>
                     <Link
                       href={`/decks/${deck.id}/edit`}
-                      className="btn btn-primary"
+                      className="btn btn-primary btn-icon"
+                      aria-label="View deck"
+                      title="View deck"
                     >
-                      View
+                      <Eye aria-hidden="true" focusable="false" />
                     </Link>
                     <button
                       type="button"

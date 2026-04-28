@@ -60,21 +60,6 @@ function parseLimit(value: string | null) {
   return 10;
 }
 
-function includesIgnoreCase(
-  value: string | null | undefined,
-  needle: string | null,
-) {
-  if (!needle) {
-    return true;
-  }
-
-  if (!value) {
-    return false;
-  }
-
-  return value.toLowerCase().includes(needle.toLowerCase());
-}
-
 function hasArrayValue(
   values: string[] | null | undefined,
   needle: string | null,
@@ -218,11 +203,6 @@ function normalizeCardShape(
     normalized.traits = normalizedTraits;
   }
 
-  const normalizedTextBox = normalizeString(card.textBox);
-  if (normalizedTextBox) {
-    normalized.textBox = normalizedTextBox;
-  }
-
   const normalizedAbilities = normalizeStringArray(card.abilities);
   if (normalizedAbilities.length > 0) {
     normalized.abilities = normalizedAbilities;
@@ -256,7 +236,6 @@ function getSearchableCardText(card: CardsResponseCard) {
     card.id,
     card.name,
     card.color,
-    card.textBox,
     card.imageUrl,
     card.pitch,
     card.cost,
@@ -275,6 +254,22 @@ function getSearchableCardText(card: CardsResponseCard) {
     .filter((value) => value != null)
     .map((value) => String(value).toLowerCase())
     .join(" ");
+}
+
+function hasAllArrayValues(
+  values: string[] | null | undefined,
+  needles: string[],
+) {
+  if (needles.length === 0) {
+    return true;
+  }
+
+  if (!values || values.length === 0) {
+    return false;
+  }
+
+  const normalizedValues = new Set(values.map((value) => value.toLowerCase()));
+  return needles.every((needle) => normalizedValues.has(needle.toLowerCase()));
 }
 
 export async function GET(request: Request) {
@@ -301,23 +296,29 @@ export async function GET(request: Request) {
     const search = getNullableSingle(params, "search");
 
     const filters = {
-      name: getNullableSingle(params, "name"),
       pitch: parseNumberFilter(getNullableSingle(params, "pitch")),
       cost: parseNumberFilter(getNullableSingle(params, "cost")),
       color: getNullableSingle(params, "color"),
       power: parseNumberFilter(getNullableSingle(params, "power")),
       defense: parseNumberFilter(getNullableSingle(params, "defense")),
-      intellect: parseNumberFilter(getNullableSingle(params, "intellect")),
-      life: parseNumberFilter(getNullableSingle(params, "life")),
       types: getNullableSingle(params, "types"),
-      functionalSubtypes: getNullableSingle(params, "functionalSubtypes"),
+      functionalSubtypes: params
+        .getAll("functionalSubtypes")
+        .flatMap((value) => value.split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
       nonFunctionalSubtypes: getNullableSingle(params, "nonFunctionalSubtypes"),
-      talent: getNullableSingle(params, "talent"),
-      class: getNullableSingle(params, "class"),
+      talent: params
+        .getAll("talent")
+        .flatMap((value) => value.split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
+      class: params
+        .getAll("class")
+        .flatMap((value) => value.split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
       traits: getNullableSingle(params, "traits"),
-      textBox: getNullableSingle(params, "textBox"),
-      abilities: getNullableSingle(params, "abilities"),
-      imageUrl: getNullableSingle(params, "imageUrl"),
     };
 
     const cards = await cardsCollection.find<CardDocument>({}).toArray();
@@ -331,10 +332,6 @@ export async function GET(request: Request) {
           search &&
           !getSearchableCardText(card).includes(search.toLowerCase())
         ) {
-          return false;
-        }
-
-        if (!includesIgnoreCase(card.name, filters.name)) {
           return false;
         }
 
@@ -361,23 +358,12 @@ export async function GET(request: Request) {
           return false;
         }
 
-        if (
-          filters.intellect !== null &&
-          card.intellect !== filters.intellect
-        ) {
-          return false;
-        }
-
-        if (filters.life !== null && card.life !== filters.life) {
-          return false;
-        }
-
         if (!hasArrayValue(card.types ?? null, filters.types)) {
           return false;
         }
 
         if (
-          !hasArrayValue(
+          !hasAllArrayValues(
             card.functionalSubtypes ?? null,
             filters.functionalSubtypes,
           )
@@ -394,32 +380,15 @@ export async function GET(request: Request) {
           return false;
         }
 
-        if (!hasArrayValue(card.talent ?? null, filters.talent)) {
+        if (!hasAllArrayValues(card.talent ?? null, filters.talent)) {
           return false;
         }
 
-        if (!hasArrayValue(card.class ?? null, filters.class)) {
+        if (!hasAllArrayValues(card.class ?? null, filters.class)) {
           return false;
         }
 
         if (!hasArrayValue(card.traits ?? null, filters.traits)) {
-          return false;
-        }
-
-        if (!includesIgnoreCase(card.textBox, filters.textBox)) {
-          return false;
-        }
-
-        if (
-          filters.abilities &&
-          !card.abilities?.some((ability) =>
-            ability.toLowerCase().includes(filters.abilities!.toLowerCase()),
-          )
-        ) {
-          return false;
-        }
-
-        if (!includesIgnoreCase(card.imageUrl, filters.imageUrl)) {
           return false;
         }
 
@@ -516,6 +485,7 @@ export async function PUT(request: Request) {
 
     const updateData = { ...payload };
     delete updateData.id;
+    delete (updateData as Record<string, unknown>).textBox;
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
@@ -527,7 +497,7 @@ export async function PUT(request: Request) {
     const cardsCollection = await getCardsCollection();
     const result = await cardsCollection.updateOne(
       { id },
-      { $set: updateData },
+      { $set: updateData, $unset: { textBox: "" } },
     );
 
     if (result.matchedCount === 0) {

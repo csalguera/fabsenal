@@ -25,9 +25,11 @@ import { useAuthSession } from "@/app/auth/session-provider";
 import {
   hasAllySubtype,
   isMainDeckDisplayCard,
+  shouldDisplayColor,
   shouldDisplayCost,
   shouldDisplayDefense,
   shouldDisplayLife,
+  shouldDisplayPower,
   shouldDisplayPitch,
 } from "@/app/card-display";
 import { getGuestDeckById, saveGuestDeck } from "./storage";
@@ -173,7 +175,6 @@ function getSearchableCardText(card: Card) {
     card.id,
     card.name,
     card.color,
-    card.textBox,
     card.imageUrl,
     card.pitch,
     card.cost,
@@ -1606,7 +1607,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                 aria-label={`${modalCard.name} details`}
               >
                 <div className="deck-card-modal-header">
-                  <h3>{modalCard.name}</h3>
+                  <h3 className="section-title">{modalCard.name}</h3>
                   <button
                     type="button"
                     className="btn btn-primary"
@@ -1643,8 +1644,11 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         ...(shouldDisplayCost(modalCard)
                           ? [{ label: "Cost", value: modalCard.cost }]
                           : []),
-                        { label: "Color", value: modalCard.color },
-                        ...(modalCard.power != null
+                        ...(shouldDisplayColor(modalCard) &&
+                        modalCard.color != null
+                          ? [{ label: "Color", value: modalCard.color }]
+                          : []),
+                        ...(shouldDisplayPower(modalCard)
                           ? [{ label: "Power", value: modalCard.power }]
                           : []),
                         ...(shouldDisplayDefense(modalCard)
@@ -1663,7 +1667,6 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                         { label: "Talent", value: modalCard.talent },
                         { label: "Class", value: modalCard.class },
                         { label: "Traits", value: modalCard.traits },
-                        { label: "Text Box", value: modalCard.textBox },
                       ];
                     })().map((field) => {
                       const displayValue = formatModalFieldValue(

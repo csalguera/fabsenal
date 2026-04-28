@@ -14,27 +14,30 @@ type CardsPageProps = {
 const LIMIT_OPTIONS = [10, 20, 30, 40, 50] as const;
 
 const FILTER_QUERY_KEYS = [
-  "name",
   "pitch",
   "cost",
   "color",
   "power",
   "defense",
-  "intellect",
-  "life",
   "types",
   "functionalSubtypes",
   "nonFunctionalSubtypes",
   "talent",
   "class",
   "traits",
-  "textBox",
-  "abilities",
-  "imageUrl",
+] as const;
+
+const MULTI_FILTER_QUERY_KEYS = [
+  "functionalSubtypes",
+  "talent",
+  "class",
 ] as const;
 
 type FilterQueryKey = (typeof FILTER_QUERY_KEYS)[number];
-type CardFilterValues = Record<FilterQueryKey, string>;
+type MultiFilterQueryKey = (typeof MULTI_FILTER_QUERY_KEYS)[number];
+type SingleFilterQueryKey = Exclude<FilterQueryKey, MultiFilterQueryKey>;
+type CardFilterValues = Record<SingleFilterQueryKey, string> &
+  Record<MultiFilterQueryKey, string[]>;
 
 function getSingle(value: SearchParamValue) {
   if (Array.isArray(value)) {
@@ -42,6 +45,15 @@ function getSingle(value: SearchParamValue) {
   }
 
   return value ?? "";
+}
+
+function getMulti(value: SearchParamValue) {
+  const rawValues = Array.isArray(value) ? value : value ? [value] : [];
+
+  return rawValues
+    .flatMap((entry) => entry.split(","))
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
 function normalizeLimit(value: string) {
@@ -69,10 +81,29 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
   const limit = normalizeLimit(getSingle(resolvedSearchParams.limit));
   const page = normalizePage(getSingle(resolvedSearchParams.page));
 
-  const filters = FILTER_QUERY_KEYS.reduce((acc, key) => {
-    acc[key] = getSingle(resolvedSearchParams[key]).trim();
-    return acc;
-  }, {} as CardFilterValues);
+  const singleFilters = FILTER_QUERY_KEYS.filter(
+    (key): key is SingleFilterQueryKey =>
+      !MULTI_FILTER_QUERY_KEYS.includes(key as MultiFilterQueryKey),
+  ).reduce(
+    (acc, key) => {
+      acc[key] = getSingle(resolvedSearchParams[key]).trim();
+      return acc;
+    },
+    {} as Record<SingleFilterQueryKey, string>,
+  );
+
+  const multiFilters = MULTI_FILTER_QUERY_KEYS.reduce(
+    (acc, key) => {
+      acc[key] = getMulti(resolvedSearchParams[key]);
+      return acc;
+    },
+    {} as Record<MultiFilterQueryKey, string[]>,
+  );
+
+  const filters: CardFilterValues = {
+    ...singleFilters,
+    ...multiFilters,
+  };
 
   const cardsPage = await getCards({
     page,
@@ -95,6 +126,13 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
 
   for (const key of FILTER_QUERY_KEYS) {
     const value = filters[key];
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        sharedParams.set(key, value.join(","));
+      }
+      continue;
+    }
+
     if (value) {
       sharedParams.set(key, value);
     }

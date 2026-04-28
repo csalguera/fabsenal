@@ -29,7 +29,6 @@ type CardFormState = ClassificationState & {
   intellect: string;
   life: string;
   rarity: CardRarity;
-  textBox: string;
   abilities: string[];
   traits: CardTrait[];
   useNoTraits: boolean;
@@ -54,7 +53,6 @@ const INITIAL_FORM_STATE: CardFormState = {
   talent: [],
   useNoTalent: true,
   class: ["Generic"],
-  textBox: "",
   abilities: [""],
   traits: [],
   useNoTraits: true,
@@ -137,7 +135,6 @@ export default function AddCardButton({
       talent: card.talent ?? [],
       useNoTalent: !card.talent || card.talent.length === 0,
       class: card.class && card.class.length > 0 ? card.class : ["Generic"],
-      textBox: card.textBox ?? "",
       abilities:
         (card.abilities ?? []).length > 0 ? (card.abilities ?? []) : [""],
       traits: card.traits ?? [],
@@ -232,7 +229,6 @@ export default function AddCardButton({
           ? null
           : formState.traits,
       imageUrl: uploadedImageUrl,
-      textBox: formState.textBox.trim(),
       abilities: formState.abilities
         .map((ability) => ability.trim())
         .filter(Boolean),
@@ -462,20 +458,6 @@ export default function AddCardButton({
             </option>
           ))}
         </select>
-      </p>
-
-      <p className="field-row">
-        <label htmlFor="textbox">Text Box </label>
-        <input
-          id="textbox"
-          value={formState.textBox}
-          onChange={(event) =>
-            setFormState((current) => ({
-              ...current,
-              textBox: event.target.value,
-            }))
-          }
-        />
       </p>
 
       <div className="field-row">

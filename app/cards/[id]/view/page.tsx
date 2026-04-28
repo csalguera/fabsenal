@@ -4,9 +4,11 @@ import CardImage from "../../../card-image";
 import {
   hasAllySubtype,
   isMainDeckDisplayCard,
+  shouldDisplayColor,
   shouldDisplayCost,
   shouldDisplayDefense,
   shouldDisplayLife,
+  shouldDisplayPower,
   shouldDisplayPitch,
 } from "../../../card-display";
 import {
@@ -154,8 +156,10 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             ...(shouldDisplayCost(card)
               ? [{ label: "Cost", value: card.cost }]
               : []),
-            { label: "Color", value: card.color },
-            ...(card.power != null
+            ...(shouldDisplayColor(card) && card.color != null
+              ? [{ label: "Color", value: card.color }]
+              : []),
+            ...(shouldDisplayPower(card)
               ? [{ label: "Power", value: card.power }]
               : []),
             ...(shouldDisplayDefense(card)
@@ -177,7 +181,6 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
             { label: "Talent", value: card.talent },
             { label: "Class", value: card.class },
             { label: "Traits", value: card.traits },
-            { label: "Text Box", value: card.textBox },
           ].map((field) => {
             const displayValue = formatViewFieldValue(field.label, field.value);
             return displayValue ? (

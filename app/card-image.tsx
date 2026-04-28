@@ -68,11 +68,10 @@ export default function CardImage({
       const normalizedY = (offsetY / rect.height) * 2 - 1;
 
       gsap.to(frame, {
-        scale: 1.1,
+        scale: 1.01,
         rotateX: -normalizedY * 13,
         rotateY: normalizedX * 13,
         z: 64,
-        boxShadow: "0 28px 52px rgba(14, 25, 39, 0.35)",
         transformPerspective: 1000,
         duration: 0.14,
         ease: "power3.out",
@@ -99,7 +98,7 @@ export default function CardImage({
   }, []);
 
   return (
-    <div
+    <span
       key={initialSrc}
       className="card-image-frame"
       ref={frameRef}
@@ -114,6 +113,6 @@ export default function CardImage({
         unoptimized
         onError={() => setCurrentSrc(FALLBACK_IMAGE)}
       />
-    </div>
+    </span>
   );
 }

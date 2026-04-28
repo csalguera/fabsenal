@@ -17,12 +17,11 @@ type CardQuery = {
   intellect?: string;
   life?: string;
   types?: string;
-  functionalSubtypes?: string;
+  functionalSubtypes?: string | string[];
   nonFunctionalSubtypes?: string;
-  talent?: string;
-  class?: string;
+  talent?: string | string[];
+  class?: string | string[];
   traits?: string;
-  textBox?: string;
   abilities?: string;
   imageUrl?: string;
   rarity?: string;

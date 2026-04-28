@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PencilLine } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
 
 type ViewCardActionsProps = {
@@ -38,8 +39,13 @@ export default function ViewCardActions({
       </Link>
       {isAdmin ? (
         <>
-          <Link href={`/cards/${cardId}/edit`} className="btn btn-primary">
-            Edit
+          <Link
+            href={`/cards/${cardId}/edit`}
+            className="btn btn-primary btn-icon"
+            aria-label="Edit card"
+            title="Edit card"
+          >
+            <PencilLine aria-hidden="true" focusable="false" />
           </Link>
           {/* Duplicate sends the admin to a prefilled add-card draft. */}
           <Link

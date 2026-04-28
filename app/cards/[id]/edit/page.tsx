@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Eye } from "lucide-react";
 import CardActions from "../../../card-actions";
 import { getCardById, getCardNavigation } from "../../_lib";
 
@@ -42,8 +43,13 @@ export default async function EditCardPage({ params }: EditCardPageProps) {
           >
             Next
           </Link>
-          <Link href={`/cards/${card.id}/view`} className="btn btn-primary">
-            View
+          <Link
+            href={`/cards/${card.id}/view`}
+            className="btn btn-primary btn-icon"
+            aria-label="View card"
+            title="View card"
+          >
+            <Eye aria-hidden="true" focusable="false" />
           </Link>
           <Link href="/cards" className="btn btn-primary">
             Back to Cards

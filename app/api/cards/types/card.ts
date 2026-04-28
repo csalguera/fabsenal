@@ -132,7 +132,6 @@ export interface Card {
   talent: CardTalent[] | null;
   class: CardClass[] | null;
   traits: CardTrait[] | null;
-  textBox: string;
   abilities: string[];
   imageUrl: string;
   rarity: CardRarity;

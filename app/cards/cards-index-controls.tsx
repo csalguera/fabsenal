@@ -9,26 +9,21 @@ import {
   CARD_TALENT_OPTIONS,
   CARD_TRAIT_OPTIONS,
   CARD_TYPE_OPTIONS,
+  getMultiSelectValues,
 } from "../card-form-shared";
 
 export type CardFilterValues = {
-  name: string;
   pitch: string;
   cost: string;
   color: string;
   power: string;
   defense: string;
-  intellect: string;
-  life: string;
   types: string;
-  functionalSubtypes: string;
+  functionalSubtypes: string[];
   nonFunctionalSubtypes: string;
-  talent: string;
-  class: string;
+  talent: string[];
+  class: string[];
   traits: string;
-  textBox: string;
-  abilities: string;
-  imageUrl: string;
 };
 
 type CardsIndexControlsProps = {
@@ -40,23 +35,17 @@ type CardsIndexControlsProps = {
 const LIMIT_OPTIONS = [10, 20, 30, 40, 50] as const;
 
 const EMPTY_FILTERS: CardFilterValues = {
-  name: "",
   pitch: "",
   cost: "",
   color: "",
   power: "",
   defense: "",
-  intellect: "",
-  life: "",
   types: "",
-  functionalSubtypes: "",
+  functionalSubtypes: [],
   nonFunctionalSubtypes: "",
-  talent: "",
-  class: "",
+  talent: [],
+  class: [],
   traits: "",
-  textBox: "",
-  abilities: "",
-  imageUrl: "",
 };
 
 export default function CardsIndexControls({
@@ -73,7 +62,9 @@ export default function CardsIndexControls({
 
   const activeFilterCount = useMemo(
     () =>
-      Object.values(filters).filter((value) => value.trim().length > 0).length,
+      Object.values(filters).filter((value) =>
+        Array.isArray(value) ? value.length > 0 : value.trim().length > 0,
+      ).length,
     [filters],
   );
 
@@ -88,6 +79,13 @@ export default function CardsIndexControls({
     }
 
     for (const [key, value] of Object.entries(filters)) {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          params.set(key, value.join(","));
+        }
+        continue;
+      }
+
       const trimmed = value.trim();
       if (trimmed) {
         params.set(key, trimmed);
@@ -105,7 +103,10 @@ export default function CardsIndexControls({
     router.push(`/cards?page=1&limit=${nextLimit}`);
   };
 
-  const setFilterValue = (key: keyof CardFilterValues, value: string) => {
+  const setFilterValue = (
+    key: keyof CardFilterValues,
+    value: string | string[],
+  ) => {
     setFilters((current) => ({
       ...current,
       [key]: value,
@@ -163,11 +164,7 @@ export default function CardsIndexControls({
           <button type="submit" className="btn btn-primary">
             Apply
           </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={resetAll}
-          >
+          <button type="button" className="btn btn-primary" onClick={resetAll}>
             Reset
           </button>
         </div>
@@ -193,16 +190,6 @@ export default function CardsIndexControls({
           </div>
 
           <div className="filters-grid">
-            <label className="cards-toolbar-field" htmlFor="filter-name">
-              Name
-              <input
-                id="filter-name"
-                value={filters.name}
-                onChange={(event) => setFilterValue("name", event.target.value)}
-                autoComplete="off"
-              />
-            </label>
-
             <label className="cards-toolbar-field" htmlFor="filter-pitch">
               Pitch
               <select
@@ -275,30 +262,6 @@ export default function CardsIndexControls({
               />
             </label>
 
-            <label className="cards-toolbar-field" htmlFor="filter-intellect">
-              Intellect
-              <input
-                id="filter-intellect"
-                type="number"
-                value={filters.intellect}
-                onChange={(event) =>
-                  setFilterValue("intellect", event.target.value)
-                }
-                autoComplete="off"
-              />
-            </label>
-
-            <label className="cards-toolbar-field" htmlFor="filter-life">
-              Life
-              <input
-                id="filter-life"
-                type="number"
-                value={filters.life}
-                onChange={(event) => setFilterValue("life", event.target.value)}
-                autoComplete="off"
-              />
-            </label>
-
             <label className="cards-toolbar-field" htmlFor="filter-types">
               Types
               <select
@@ -325,13 +288,17 @@ export default function CardsIndexControls({
               Functional Subtypes
               <select
                 id="filter-functional-subtypes"
+                multiple
+                size={5}
                 value={filters.functionalSubtypes}
                 onChange={(event) =>
-                  setFilterValue("functionalSubtypes", event.target.value)
+                  setFilterValue(
+                    "functionalSubtypes",
+                    getMultiSelectValues(event),
+                  )
                 }
                 autoComplete="off"
               >
-                <option value="">Any</option>
                 {CARD_FUNCTIONAL_SUBTYPE_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -366,13 +333,14 @@ export default function CardsIndexControls({
               Talent
               <select
                 id="filter-talent"
+                multiple
+                size={5}
                 value={filters.talent}
                 onChange={(event) =>
-                  setFilterValue("talent", event.target.value)
+                  setFilterValue("talent", getMultiSelectValues(event))
                 }
                 autoComplete="off"
               >
-                <option value="">Any</option>
                 {CARD_TALENT_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -385,13 +353,14 @@ export default function CardsIndexControls({
               Class
               <select
                 id="filter-class"
+                multiple
+                size={8}
                 value={filters.class}
                 onChange={(event) =>
-                  setFilterValue("class", event.target.value)
+                  setFilterValue("class", getMultiSelectValues(event))
                 }
                 autoComplete="off"
               >
-                <option value="">Any</option>
                 {CARD_CLASS_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -417,42 +386,6 @@ export default function CardsIndexControls({
                   </option>
                 ))}
               </select>
-            </label>
-
-            <label className="cards-toolbar-field" htmlFor="filter-text-box">
-              Text Box
-              <input
-                id="filter-text-box"
-                value={filters.textBox}
-                onChange={(event) =>
-                  setFilterValue("textBox", event.target.value)
-                }
-                autoComplete="off"
-              />
-            </label>
-
-            <label className="cards-toolbar-field" htmlFor="filter-abilities">
-              Abilities
-              <input
-                id="filter-abilities"
-                value={filters.abilities}
-                onChange={(event) =>
-                  setFilterValue("abilities", event.target.value)
-                }
-                autoComplete="off"
-              />
-            </label>
-
-            <label className="cards-toolbar-field" htmlFor="filter-image-url">
-              Image Url
-              <input
-                id="filter-image-url"
-                value={filters.imageUrl}
-                onChange={(event) =>
-                  setFilterValue("imageUrl", event.target.value)
-                }
-                autoComplete="off"
-              />
             </label>
           </div>
 

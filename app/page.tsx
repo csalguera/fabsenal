@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 export default function Home() {
   return (
@@ -26,8 +27,13 @@ export default function Home() {
           Pick a format, select your hero, and build a legal deck.
         </p>
         <div className="page-actions">
-          <Link href="/decks/add" className="btn btn-primary">
-            Create Deck
+          <Link
+            href="/decks/add"
+            className="btn btn-primary btn-icon"
+            aria-label="Create deck"
+            title="Create deck"
+          >
+            <Plus aria-hidden="true" focusable="false" />
           </Link>
         </div>
       </section>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import CardImage from "./card-image";
 import { useAuthSession } from "@/app/auth/session-provider";
 import type {
@@ -37,7 +38,6 @@ type CardEditState = ClassificationState & {
   rarity: CardRarity;
   traits: CardTrait[];
   useNoTraits: boolean;
-  textBox: string;
   abilities: string[];
   imageUrl: string;
 };
@@ -68,7 +68,6 @@ function initialStateFromCard(
     class: card.class && card.class.length > 0 ? card.class : ["Generic"],
     traits: card.traits ?? [],
     useNoTraits: !card.traits || card.traits.length === 0,
-    textBox: card.textBox ?? "",
     abilities:
       (card.abilities ?? []).length > 0 ? (card.abilities ?? []) : [""],
     imageUrl: card.imageUrl ?? "",
@@ -203,7 +202,6 @@ export default function CardActions({
         formState.useNoTraits || formState.traits.length === 0
           ? null
           : formState.traits,
-      textBox: formState.textBox.trim(),
       abilities: formState.abilities
         .map((ability) => ability.trim())
         .filter(Boolean),
@@ -473,19 +471,6 @@ export default function CardActions({
           ))}
         </select>
       </p>
-      <p className="field-row">
-        <label htmlFor={`update-textbox-${id}`}>Text Box </label>
-        <input
-          id={`update-textbox-${id}`}
-          value={formState.textBox}
-          onChange={(event) =>
-            setFormState((current) => ({
-              ...current,
-              textBox: event.target.value,
-            }))
-          }
-        />
-      </p>
       <div className="field-row">
         <label>Abilities</label>
         <div className="abilities-list">
@@ -556,9 +541,15 @@ export default function CardActions({
         type="button"
         onClick={handleDelete}
         disabled={isSubmitting}
-        className="btn btn-danger"
+        className="btn btn-danger btn-icon"
+        aria-label={isSubmitting ? "Deleting card" : "Delete card"}
+        title={isSubmitting ? "Deleting card" : "Delete card"}
       >
-        Delete
+        {isSubmitting ? (
+          <span aria-hidden="true">…</span>
+        ) : (
+          <Trash2 aria-hidden="true" focusable="false" />
+        )}
       </button>
       {message ? <p className="form-message">{message}</p> : null}
     </form>
