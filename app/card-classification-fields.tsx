@@ -113,7 +113,7 @@ export default function CardClassificationFields({
                 </select>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-primary"
                   onClick={() => {
                     const nextValues = state.functionalSubtypes.filter(
                       (_, valueIndex) => valueIndex !== index,
@@ -134,7 +134,7 @@ export default function CardClassificationFields({
         <div className="dynamic-select-actions">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-primary"
             onClick={() => {
               const nextValues = state.functionalSubtypes.length
                 ? [
@@ -223,7 +223,7 @@ export default function CardClassificationFields({
                 </select>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-primary"
                   onClick={() => {
                     const nextValues = state.talent.filter(
                       (_, valueIndex) => valueIndex !== index,
@@ -245,7 +245,7 @@ export default function CardClassificationFields({
         <div className="dynamic-select-actions">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-primary"
             onClick={() => {
               const nextTalent = state.talent.length
                 ? [...state.talent, CARD_TALENT_OPTIONS[0]]
@@ -314,7 +314,7 @@ export default function CardClassificationFields({
             </select>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               onClick={() => {
                 const nextClass = state.class.filter(
                   (_, valueIndex) => valueIndex !== index,
@@ -345,7 +345,7 @@ export default function CardClassificationFields({
         ))}
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           disabled={isGenericClassOnly}
           onClick={() =>
             onChange({

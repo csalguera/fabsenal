@@ -109,7 +109,7 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
   return (
     <section className="cards-section">
       <div className="section-header">
-        <h2>Cards</h2>
+        <h2 className="section-title">Cards</h2>
         <CardsAdminLink />
       </div>
 
@@ -160,7 +160,7 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
         <nav className="cards-pagination" aria-label="Cards pagination">
           <Link
             href={createPageHref(Math.max(1, cardsPage.page - 1))}
-            className="btn btn-secondary"
+            className="btn btn-primary"
             aria-disabled={cardsPage.page <= 1}
           >
             Previous
@@ -185,7 +185,7 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
             href={createPageHref(
               Math.min(cardsPage.totalPages, cardsPage.page + 1),
             )}
-            className="btn btn-secondary"
+            className="btn btn-primary"
             aria-disabled={cardsPage.page >= cardsPage.totalPages}
           >
             Next

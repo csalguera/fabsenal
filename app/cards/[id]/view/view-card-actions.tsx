@@ -24,25 +24,29 @@ export default function ViewCardActions({
     <div className="card-item-actions">
       <Link
         href={previousViewHref}
-        className="btn btn-secondary"
+        className="btn btn-primary"
         aria-disabled={!hasPrevious}
       >
         Prev
       </Link>
       <Link
         href={nextViewHref}
-        className="btn btn-secondary"
+        className="btn btn-primary"
         aria-disabled={!hasNext}
       >
         Next
       </Link>
       {isAdmin ? (
         <>
-          <Link href={`/cards/${cardId}/edit`} className="btn btn-secondary">
+          <Link href={`/cards/${cardId}/edit`} className="btn btn-primary">
             Edit
           </Link>
-          <Link href="/cards/add" className="btn btn-primary">
-            Add a Card
+          {/* Duplicate sends the admin to a prefilled add-card draft. */}
+          <Link
+            href={`/cards/add?duplicateFrom=${encodeURIComponent(cardId)}`}
+            className="btn btn-primary"
+          >
+            Duplicate
           </Link>
         </>
       ) : null}

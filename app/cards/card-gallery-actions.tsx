@@ -41,13 +41,20 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
 
   return (
     <div className="card-item-actions">
-      <Link href={`/cards/${id}/view`} className="btn btn-secondary">
+      <Link href={`/cards/${id}/view`} className="btn btn-primary">
         View
       </Link>
       {isAdmin ? (
         <>
-          <Link href={`/cards/${id}/edit`} className="btn btn-secondary">
+          <Link href={`/cards/${id}/edit`} className="btn btn-primary">
             Edit
+          </Link>
+          {/* Duplicate sends the admin to a prefilled add-card draft. */}
+          <Link
+            href={`/cards/add?duplicateFrom=${encodeURIComponent(id)}`}
+            className="btn btn-primary"
+          >
+            Duplicate
           </Link>
           <button
             type="button"

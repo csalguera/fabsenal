@@ -30,19 +30,19 @@ export default async function EditCardPage({ params }: EditCardPageProps) {
         <div className="card-item-actions">
           <Link
             href={previousEditHref}
-            className="btn btn-secondary"
+            className="btn btn-primary"
             aria-disabled={!navigation.previousId}
           >
             Prev
           </Link>
           <Link
             href={nextEditHref}
-            className="btn btn-secondary"
+            className="btn btn-primary"
             aria-disabled={!navigation.nextId}
           >
             Next
           </Link>
-          <Link href={`/cards/${card.id}/view`} className="btn btn-secondary">
+          <Link href={`/cards/${card.id}/view`} className="btn btn-primary">
             View
           </Link>
           <Link href="/cards" className="btn btn-primary">

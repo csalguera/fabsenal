@@ -150,7 +150,7 @@ export default function DecksPageClient() {
   return (
     <section className="cards-section">
       <div className="section-header">
-        <h2>Decks</h2>
+        <h2 className="section-title">Decks</h2>
         <Link href="/decks/add" className="btn btn-primary">
           Create Deck
         </Link>
@@ -161,7 +161,7 @@ export default function DecksPageClient() {
       {user && guestDecks.length > 0 ? (
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={migrateGuestDecks}
         >
           Save Guest Decks To Account
@@ -193,7 +193,7 @@ export default function DecksPageClient() {
                   <>
                     <Link
                       href={`/decks/${deck.id}/edit`}
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                     >
                       Edit
                     </Link>
@@ -209,7 +209,7 @@ export default function DecksPageClient() {
                   <>
                     <Link
                       href={`/decks/${deck.id}/edit`}
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                     >
                       View
                     </Link>

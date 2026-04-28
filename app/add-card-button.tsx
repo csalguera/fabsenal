@@ -33,6 +33,7 @@ type CardFormState = ClassificationState & {
   abilities: string[];
   traits: CardTrait[];
   useNoTraits: boolean;
+  imageUrl: string;
 };
 
 const INITIAL_FORM_STATE: CardFormState = {
@@ -57,17 +58,23 @@ const INITIAL_FORM_STATE: CardFormState = {
   abilities: [""],
   traits: [],
   useNoTraits: true,
+  imageUrl: "",
 };
 
 type AddCardButtonProps = {
   successRedirectTo?: string;
+  initialCard?: Partial<Card> & { id: string; name: string };
 };
 
 export default function AddCardButton({
   successRedirectTo,
+  initialCard,
 }: AddCardButtonProps) {
   const { idToken, isAdmin, loading } = useAuthSession();
-  const [formState, setFormState] = useState<CardFormState>(INITIAL_FORM_STATE);
+  const [formState, setFormState] = useState<CardFormState>(
+    // Seed the form from the duplicated card when present.
+    initialCard ? buildFormStateFromCard(initialCard) : INITIAL_FORM_STATE,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -105,6 +112,39 @@ export default function AddCardButton({
       };
     });
   };
+
+  function buildFormStateFromCard(
+    card: Partial<Card> & { id: string; name: string },
+  ): CardFormState {
+    // Copy the source card into a draft so the user can tweak and submit it.
+    return {
+      name: card.name,
+      pitch: card.pitch != null ? (String(card.pitch) as PitchInputValue) : "0",
+      cost: card.cost != null ? String(card.cost) : "0",
+      color: card.color ?? "",
+      power: card.power != null ? String(card.power) : "0",
+      defense: card.defense != null ? String(card.defense) : "0",
+      intellect: card.intellect != null ? String(card.intellect) : "0",
+      life: card.life != null ? String(card.life) : "0",
+      rarity: card.rarity ?? "Common",
+      types: card.types ?? ["Action"],
+      functionalSubtypes: card.functionalSubtypes ?? [],
+      useNoFunctionalSubtypes:
+        !card.functionalSubtypes || card.functionalSubtypes.length === 0,
+      nonFunctionalSubtypes: card.nonFunctionalSubtypes ?? [],
+      useNoNonFunctionalSubtypes:
+        !card.nonFunctionalSubtypes || card.nonFunctionalSubtypes.length === 0,
+      talent: card.talent ?? [],
+      useNoTalent: !card.talent || card.talent.length === 0,
+      class: card.class && card.class.length > 0 ? card.class : ["Generic"],
+      textBox: card.textBox ?? "",
+      abilities:
+        (card.abilities ?? []).length > 0 ? (card.abilities ?? []) : [""],
+      traits: card.traits ?? [],
+      useNoTraits: !card.traits || card.traits.length === 0,
+      imageUrl: card.imageUrl ?? "",
+    };
+  }
 
   const uploadImageToS3 = async (file: File) => {
     const uploadPayload = new FormData();
@@ -146,7 +186,7 @@ export default function AddCardButton({
       return;
     }
 
-    if (!imageFile) {
+    if (!imageFile && !formState.imageUrl) {
       setMessage("Image upload is required.");
       return;
     }
@@ -154,15 +194,17 @@ export default function AddCardButton({
     setIsSubmitting(true);
     setMessage(null);
 
-    let uploadedImageUrl = "";
+    let uploadedImageUrl = formState.imageUrl;
 
-    try {
-      uploadedImageUrl = await uploadImageToS3(imageFile);
-    } catch (error) {
-      console.error("Failed to upload image", error);
-      setMessage("Unable to upload image. Please try again.");
-      setIsSubmitting(false);
-      return;
+    if (imageFile) {
+      try {
+        uploadedImageUrl = await uploadImageToS3(imageFile);
+      } catch (error) {
+        console.error("Failed to upload image", error);
+        setMessage("Unable to upload image. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const payload: Card = {
@@ -189,11 +231,11 @@ export default function AddCardButton({
         formState.useNoTraits || formState.traits.length === 0
           ? null
           : formState.traits,
+      imageUrl: uploadedImageUrl,
       textBox: formState.textBox.trim(),
       abilities: formState.abilities
         .map((ability) => ability.trim())
         .filter(Boolean),
-      imageUrl: uploadedImageUrl,
     };
 
     try {
@@ -450,7 +492,7 @@ export default function AddCardButton({
               />
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-primary"
                 onClick={() => removeAbilityField(index)}
                 disabled={formState.abilities.length === 1}
               >
@@ -461,7 +503,7 @@ export default function AddCardButton({
         </div>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={addAbilityField}
         >
           Add Ability
@@ -475,8 +517,13 @@ export default function AddCardButton({
           type="file"
           accept="image/*"
           onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-          required
+          required={!formState.imageUrl}
         />
+        {formState.imageUrl ? (
+          <span className="form-message">
+            Duplicated image will be reused unless you choose a new upload.
+          </span>
+        ) : null}
       </p>
 
       <button type="submit" disabled={isSubmitting} className="btn btn-primary">

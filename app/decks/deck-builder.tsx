@@ -706,9 +706,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
             }}
           >
             <strong>Silver Age</strong>
-            <span>
-              Young / Pit-Fighter heroes, 2 copies, 55 inventory, 40 deck
-            </span>
+            <span>Young heroes, 2 copies, 55 inventory, 40 deck</span>
           </button>
           <button
             type="button"
@@ -829,7 +827,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <h3>Deck Cards</h3>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     onClick={() => setShowLegalPane((current) => !current)}
                   >
                     {showLegalPane ? "Hide Legal Cards" : "Show Legal Cards"}
@@ -885,7 +883,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     onClick={() =>
                       setDeck((current) => ({
                         ...current,
@@ -984,7 +982,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <div className="deck-image-card-actions">
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(
                                     card,
@@ -1000,7 +998,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <span className="deck-qty-value">{quantity}</span>
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(card, quantity + 1)
                                 }
@@ -1053,7 +1051,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <div className="deck-image-card-actions">
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(
                                     card,
@@ -1069,7 +1067,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <span className="deck-qty-value">{quantity}</span>
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(card, quantity + 1)
                                 }
@@ -1122,7 +1120,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <div className="deck-image-card-actions">
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(
                                     card,
@@ -1138,7 +1136,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                               <span className="deck-qty-value">{quantity}</span>
                               <button
                                 type="button"
-                                className="btn btn-secondary deck-qty-btn"
+                                className="btn btn-primary deck-qty-btn"
                                 onClick={() =>
                                   updateQuantity(card, quantity + 1)
                                 }
@@ -1164,7 +1162,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <h3>Legal Cards</h3>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     onClick={() => setShowDeckPane((current) => !current)}
                   >
                     {showDeckPane ? "Hide Deck Cards" : "Show Deck Cards"}
@@ -1217,7 +1215,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                           <div className="deck-image-card-actions">
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() =>
                                 updateQuantity(card, Math.max(0, qty - 1))
                               }
@@ -1230,7 +1228,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <span className="deck-qty-value">{qty}</span>
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() => updateQuantity(card, qty + 1)}
                               disabled={!canAdd}
                               aria-disabled={!canAdd}
@@ -1249,7 +1247,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-section-pagination">
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalWeaponsPage((page) => Math.max(1, page - 1))
                       }
@@ -1262,7 +1260,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                     </span>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalWeaponsPage((page) =>
                           Math.min(pagedWeapons.totalPages, page + 1),
@@ -1321,7 +1319,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                           <div className="deck-image-card-actions">
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() =>
                                 updateQuantity(card, Math.max(0, qty - 1))
                               }
@@ -1334,7 +1332,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <span className="deck-qty-value">{qty}</span>
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() => updateQuantity(card, qty + 1)}
                               disabled={!canAdd}
                               aria-disabled={!canAdd}
@@ -1353,7 +1351,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-section-pagination">
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalEquipmentPage((page) => Math.max(1, page - 1))
                       }
@@ -1366,7 +1364,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                     </span>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalEquipmentPage((page) =>
                           Math.min(pagedEquipment.totalPages, page + 1),
@@ -1430,7 +1428,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                           <div className="deck-image-card-actions">
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() =>
                                 updateQuantity(card, Math.max(0, qty - 1))
                               }
@@ -1443,7 +1441,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <span className="deck-qty-value">{qty}</span>
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() => updateQuantity(card, qty + 1)}
                               disabled={!canAdd}
                               aria-disabled={!canAdd}
@@ -1462,7 +1460,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-section-pagination">
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalMainDeckPage((page) => Math.max(1, page - 1))
                       }
@@ -1475,7 +1473,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                     </span>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalMainDeckPage((page) =>
                           Math.min(pagedMainDeck.totalPages, page + 1),
@@ -1534,7 +1532,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                           <div className="deck-image-card-actions">
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() =>
                                 updateQuantity(card, Math.max(0, qty - 1))
                               }
@@ -1547,7 +1545,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                             <span className="deck-qty-value">{qty}</span>
                             <button
                               type="button"
-                              className="btn btn-secondary deck-qty-btn"
+                              className="btn btn-primary deck-qty-btn"
                               onClick={() => updateQuantity(card, qty + 1)}
                               disabled={!canAdd}
                               aria-disabled={!canAdd}
@@ -1566,7 +1564,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <div className="deck-section-pagination">
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalTokensPage((page) => Math.max(1, page - 1))
                       }
@@ -1579,7 +1577,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                     </span>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       onClick={() =>
                         setLegalTokensPage((page) =>
                           Math.min(pagedTokens.totalPages, page + 1),
@@ -1611,7 +1609,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   <h3>{modalCard.name}</h3>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     onClick={closeCardModal}
                   >
                     Close

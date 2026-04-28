@@ -28,8 +28,9 @@ function hasSubtype(card: Card, subtype: string) {
   return (card.nonFunctionalSubtypes ?? []).includes(subtype as never);
 }
 
-function isYoungOrPitFighter(card: Card) {
-  return hasSubtype(card, "Young") || hasSubtype(card, "Pit-Fighter");
+// Silver Age hero legality only keys off Young now.
+function isYoungHero(card: Card) {
+  return hasSubtype(card, "Young");
 }
 
 export function isHeroCard(card: Card) {
@@ -69,7 +70,7 @@ export function isHeroAllowedForFormat(hero: Card, format: DeckFormat) {
     return false;
   }
 
-  const isSilverHero = isYoungOrPitFighter(hero);
+  const isSilverHero = isYoungHero(hero);
   return format === "silver-age" ? isSilverHero : !isSilverHero;
 }
 

@@ -6,33 +6,30 @@ export default function Home() {
       <header className="hero-panel">
         <h1>Fabsenal</h1>
         <p>Flesh and Blood deckbuilding application</p>
+      </header>
+
+      <section className="cards-section card-home-banner">
+        <h2>Welcome</h2>
+        <p className="empty-state">
+          Navigate to the cards page to preview all available cards.
+        </p>
         <div className="page-actions">
           <Link href="/cards" className="btn btn-primary">
             Browse Cards
           </Link>
-          <Link href="/decks/add" className="btn btn-secondary">
-            Build a Deck
-          </Link>
         </div>
-      </header>
-
-      <section className="cards-section">
-        <h2>Welcome</h2>
-        <p className="empty-state">
-          Use the Cards page to view, add, edit, and manage your Flesh and Blood
-          cards.
-        </p>
       </section>
 
       <section className="cards-section deck-home-banner">
         <h2>Start Building</h2>
         <p className="empty-state">
-          Pick a format, select your hero, and build a legal inventory with
-          automatic copy-limit and format validation.
+          Pick a format, select your hero, and build a legal deck.
         </p>
-        <Link href="/decks/add" className="btn btn-primary">
-          Create Deck
-        </Link>
+        <div className="page-actions">
+          <Link href="/decks/add" className="btn btn-primary">
+            Create Deck
+          </Link>
+        </div>
       </section>
     </main>
   );

@@ -500,7 +500,7 @@ export default function CardActions({
               />
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-primary"
                 onClick={() => removeAbilityField(index)}
                 disabled={formState.abilities.length === 1}
               >
@@ -511,7 +511,7 @@ export default function CardActions({
         </div>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={addAbilityField}
         >
           Add Ability
@@ -548,7 +548,7 @@ export default function CardActions({
         type="button"
         onClick={handleUpdate}
         disabled={isSubmitting}
-        className="btn btn-secondary"
+        className="btn btn-primary"
       >
         Update
       </button>

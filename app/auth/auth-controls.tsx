@@ -113,7 +113,7 @@ export default function AuthControls() {
         </span>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={handleSignOut}
           disabled={isSubmitting}
         >
@@ -144,7 +144,7 @@ export default function AuthControls() {
       <div className="top-nav-auth-actions">
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={handleEmailSignIn}
           disabled={isSubmitting || !email.trim() || password.length < 6}
         >
@@ -152,7 +152,7 @@ export default function AuthControls() {
         </button>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={handleEmailSignUp}
           disabled={isSubmitting || !email.trim() || password.length < 6}
         >

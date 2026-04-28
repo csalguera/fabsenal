@@ -155,7 +155,7 @@ export default function CardsIndexControls({
         <div className="cards-toolbar-actions">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-primary"
             onClick={() => filterDialogRef.current?.showModal()}
           >
             Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
@@ -165,7 +165,7 @@ export default function CardsIndexControls({
           </button>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-primary"
             onClick={resetAll}
           >
             Reset
@@ -185,7 +185,7 @@ export default function CardsIndexControls({
             <h3>Card Filters</h3>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               onClick={() => filterDialogRef.current?.close()}
             >
               Close
@@ -459,7 +459,7 @@ export default function CardsIndexControls({
           <div className="filters-dialog-actions">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               onClick={() => setFilters(EMPTY_FILTERS)}
             >
               Clear Filters
