@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, PencilLine, Trash2 } from "lucide-react";
+import { Eye, PencilLine, Trash2, Copy } from "lucide-react";
 import { useAuthSession } from "@/app/auth/session-provider";
 
 type CardGalleryActionsProps = {
@@ -63,9 +63,11 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
           {/* Duplicate sends the admin to a prefilled add-card draft. */}
           <Link
             href={`/cards/add?duplicateFrom=${encodeURIComponent(id)}`}
-            className="btn btn-primary"
+            className="btn btn-primary btn-icon"
+            aria-label="Duplicate card"
+            title="Duplicate card"
           >
-            Duplicate
+            <Copy aria-hidden="true" focusable="false" />
           </Link>
           <button
             type="button"
