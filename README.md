@@ -2,6 +2,8 @@
 
 Fabsenal is a Flesh and Blood deck-building app built with Next.js, React, TypeScript, MongoDB, Firebase Auth, AWS S3, GSAP, and Lucide React.
 
+## [Live App](https://fabsenal.vercel.app/)
+
 ## Features
 
 - Browse a large a assortment of cards for the Trading Card Game (TCG) _Flesh and Blood_
