@@ -3,6 +3,7 @@ import CardImage from "../card-image";
 import { getCards, normalizeFieldValue, type CardView } from "./_lib";
 import CardGalleryActions from "./card-gallery-actions";
 import CardsIndexControls from "@/app/cards/cards-index-controls";
+import CardsAdminLink from "./cards-admin-link";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -109,9 +110,7 @@ export default async function CardsPage({ searchParams }: CardsPageProps) {
     <section className="cards-section">
       <div className="section-header">
         <h2>Cards</h2>
-        <Link href="/cards/add" className="btn btn-primary">
-          Add a Card
-        </Link>
+        <CardsAdminLink />
       </div>
 
       <CardsIndexControls

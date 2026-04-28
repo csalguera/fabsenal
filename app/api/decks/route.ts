@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDecksCollection } from "@/lib/mongodb";
+import { getAuthUserFromRequest } from "@/lib/firebase-server-auth";
 import type {
   DeckCardEntry,
   DeckFormat,
@@ -12,44 +13,14 @@ type DeckDocument = DeckRecord & {
   _id: ObjectId;
 };
 
+type DeckMutationPayload = Partial<DeckRecord> & {
+  sourceDeckId?: string;
+};
+
 function normalizeDeckForResponse(deck: DeckDocument) {
   const { _id, ...rest } = deck;
   void _id;
   return rest;
-}
-
-function parseCookies(cookieHeader: string | null) {
-  if (!cookieHeader) {
-    return {} as Record<string, string>;
-  }
-
-  const pairs = cookieHeader
-    .split(";")
-    .map((chunk) => chunk.trim())
-    .filter(Boolean)
-    .map((chunk) => {
-      const separatorIndex = chunk.indexOf("=");
-      if (separatorIndex === -1) {
-        return [chunk, ""] as const;
-      }
-
-      return [
-        decodeURIComponent(chunk.slice(0, separatorIndex)),
-        decodeURIComponent(chunk.slice(separatorIndex + 1)),
-      ] as const;
-    });
-
-  return Object.fromEntries(pairs);
-}
-
-function getUserIdFromRequest(request: Request) {
-  const explicitHeader = request.headers.get("x-user-id");
-  if (explicitHeader) {
-    return explicitHeader;
-  }
-
-  const cookies = parseCookies(request.headers.get("cookie"));
-  return cookies.fab_user_id ?? null;
 }
 
 function normalizeDeckCardEntries(value: unknown) {
@@ -90,7 +61,7 @@ function normalizeVisibility(value: unknown): DeckVisibility {
 
 function normalizeDeck(
   payload: Partial<DeckRecord>,
-  ownerId: string | null,
+  ownerId: string,
 ): DeckRecord {
   const now = new Date().toISOString();
 
@@ -115,7 +86,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const requestedId = searchParams.get("id");
-    const userId = getUserIdFromRequest(request);
+    const authUser = await getAuthUserFromRequest(request);
+    const userId = authUser?.uid ?? null;
 
     const decksCollection = await getDecksCollection();
 
@@ -159,9 +131,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const authUser = await getAuthUserFromRequest(request);
 
-    if (!userId) {
+    if (!authUser) {
       return NextResponse.json(
         {
           error:
@@ -171,10 +143,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const payload = (await request.json()) as Partial<DeckRecord>;
-    const deck = normalizeDeck(payload, userId);
-
+    const payload = (await request.json()) as DeckMutationPayload;
     const decksCollection = await getDecksCollection();
+
+    if (payload.sourceDeckId) {
+      const sourceDeck = await decksCollection.findOne<DeckDocument>({
+        id: payload.sourceDeckId,
+      });
+
+      if (!sourceDeck) {
+        return NextResponse.json({ error: "Deck not found." }, { status: 404 });
+      }
+
+      const canAccessSource =
+        sourceDeck.visibility === "public" ||
+        sourceDeck.ownerId === authUser.uid;
+
+      if (!canAccessSource) {
+        return NextResponse.json({ error: "Deck not found." }, { status: 404 });
+      }
+
+      const copiedDeck = normalizeDeck(
+        {
+          name: `Copy of ${sourceDeck.name}`,
+          format: sourceDeck.format,
+          heroCardId: sourceDeck.heroCardId,
+          cards: sourceDeck.cards,
+          visibility: "private",
+        },
+        authUser.uid,
+      );
+
+      await decksCollection.insertOne(copiedDeck);
+
+      return NextResponse.json(copiedDeck, { status: 201 });
+    }
+
+    const deck = normalizeDeck(payload, authUser.uid);
     await decksCollection.insertOne(deck);
 
     return NextResponse.json(deck, { status: 201 });
@@ -189,8 +194,8 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const userId = getUserIdFromRequest(request);
-    if (!userId) {
+    const authUser = await getAuthUserFromRequest(request);
+    if (!authUser) {
       return NextResponse.json(
         { error: "Authentication required." },
         { status: 401 },
@@ -214,14 +219,17 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Deck not found." }, { status: 404 });
     }
 
-    if (existingDeck.ownerId !== userId) {
+    if (existingDeck.ownerId !== authUser.uid) {
       return NextResponse.json(
         { error: "You can only edit your own decks." },
         { status: 403 },
       );
     }
 
-    const nextDeck = normalizeDeck({ ...existingDeck, ...payload }, userId);
+    const nextDeck = normalizeDeck(
+      { ...existingDeck, ...payload },
+      authUser.uid,
+    );
 
     await decksCollection.updateOne({ id: payload.id }, { $set: nextDeck });
 
@@ -237,8 +245,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const userId = getUserIdFromRequest(request);
-    if (!userId) {
+    const authUser = await getAuthUserFromRequest(request);
+    if (!authUser) {
       return NextResponse.json(
         { error: "Authentication required." },
         { status: 401 },
@@ -262,7 +270,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Deck not found." }, { status: 404 });
     }
 
-    if (existingDeck.ownerId !== userId) {
+    if (existingDeck.ownerId !== authUser.uid) {
       return NextResponse.json(
         { error: "You can only delete your own decks." },
         { status: 403 },

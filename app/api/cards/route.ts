@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getCardsCollection } from "@/lib/mongodb";
+import { getAuthUserFromRequest } from "@/lib/firebase-server-auth";
 import type { Card } from "./types/card";
 import {
   CARD_FUNCTIONAL_SUBTYPE_OPTIONS,
@@ -464,6 +465,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authUser = await getAuthUserFromRequest(request);
+    if (!authUser?.isAdmin) {
+      return NextResponse.json(
+        { error: "Admin privileges required." },
+        { status: 403 },
+      );
+    }
+
     const incomingCard: Card = await request.json();
     const cardsCollection = await getCardsCollection();
 
@@ -489,6 +498,14 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authUser = await getAuthUserFromRequest(request);
+    if (!authUser?.isAdmin) {
+      return NextResponse.json(
+        { error: "Admin privileges required." },
+        { status: 403 },
+      );
+    }
+
     const payload = (await request.json()) as Partial<Card> & { id?: string };
     const id = payload.id;
 
@@ -537,6 +554,14 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authUser = await getAuthUserFromRequest(request);
+    if (!authUser?.isAdmin) {
+      return NextResponse.json(
+        { error: "Admin privileges required." },
+        { status: 403 },
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

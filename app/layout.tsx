@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuthSessionProvider } from "./auth/session-provider";
+import AuthControls from "./auth/auth-controls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,25 +31,32 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="top-nav-shell">
-          <nav className="top-nav" aria-label="Main navigation">
-            <Link href="/" className="top-nav-brand" aria-label="Fabsenal home">
-              Fabsenal
-            </Link>
-            <div className="top-nav-links">
-              <Link href="/" className="top-nav-link">
-                Home
+        <AuthSessionProvider>
+          <header className="top-nav-shell">
+            <nav className="top-nav" aria-label="Main navigation">
+              <Link
+                href="/"
+                className="top-nav-brand"
+                aria-label="Fabsenal home"
+              >
+                Fabsenal
               </Link>
-              <Link href="/cards" className="top-nav-link">
-                Cards
-              </Link>
-              <Link href="/decks" className="top-nav-link">
-                Decks
-              </Link>
-            </div>
-          </nav>
-        </header>
-        {children}
+              <div className="top-nav-links">
+                <Link href="/" className="top-nav-link">
+                  Home
+                </Link>
+                <Link href="/cards" className="top-nav-link">
+                  Cards
+                </Link>
+                <Link href="/decks" className="top-nav-link">
+                  Decks
+                </Link>
+              </div>
+              <AuthControls />
+            </nav>
+          </header>
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );

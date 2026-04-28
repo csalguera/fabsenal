@@ -96,6 +96,30 @@ body {
   transform: translateY(-1px);
 }
 
+.top-nav-auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.top-nav-auth-input {
+  min-width: 10.5rem;
+  max-width: 13.5rem;
+  background: var(--input-bg);
+  border: 1px solid rgba(32, 56, 94, 0.2);
+  border-radius: 10px;
+  padding: 0.35rem 0.5rem;
+  color: var(--foreground);
+}
+
+.top-nav-auth-note {
+  font-size: 0.85rem;
+  color: #21486a;
+  font-weight: 600;
+}
+
 .app-shell {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
@@ -1008,6 +1032,17 @@ img {
   .top-nav-link {
     padding: 0.32rem 0.6rem;
     font-size: 0.9rem;
+  }
+
+  .top-nav-auth-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .top-nav-auth-input {
+    min-width: 8rem;
+    max-width: 100%;
+    width: 100%;
   }
 
   .app-shell {

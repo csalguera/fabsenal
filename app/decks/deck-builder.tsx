@@ -18,10 +18,10 @@ import {
   isHeroAllowedForFormat,
   isHeroCard,
   isMainDeckCard,
-  isTokenCard,
+  isTokenLikeCard,
   validateDeck,
 } from "./rules";
-import { getClientUserId } from "./auth-client";
+import { useAuthSession } from "@/app/auth/session-provider";
 import { getGuestDeckById, saveGuestDeck } from "./storage";
 import type {
   DeckCardEntry,
@@ -267,7 +267,7 @@ function paginateCards(cards: Card[], requestedPage: number, pageSize: number) {
 
 export default function DeckBuilder({ deckId }: DeckBuilderProps) {
   const router = useRouter();
-  const [userId] = useState<string | null>(() => getClientUserId());
+  const { user, idToken } = useAuthSession();
   const [cards, setCards] = useState<Card[]>([]);
   const [deck, setDeck] = useState<EditableDeck>(INITIAL_DECK);
   const [stage, setStage] = useState<BuilderStage>("format");
@@ -316,7 +316,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
           `/api/decks?id=${encodeURIComponent(deckId)}`,
           {
             cache: "no-store",
-            headers: userId ? { "x-user-id": userId } : undefined,
+            headers: idToken
+              ? { Authorization: `Bearer ${idToken}` }
+              : undefined,
           },
         );
 
@@ -366,7 +368,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
     return () => {
       cancelled = true;
     };
-  }, [deckId, userId]);
+  }, [deckId, idToken]);
 
   const cardsById = useMemo(() => toCardMap(cards), [cards]);
 
@@ -410,7 +412,8 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
   }, [deck.cards, cardsById]);
 
   const legalWeapons = useMemo(
-    () => legalCards.filter((card) => isWeaponCard(card) && !isTokenCard(card)),
+    () =>
+      legalCards.filter((card) => isWeaponCard(card) && !isTokenLikeCard(card)),
     [legalCards],
   );
 
@@ -418,7 +421,9 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
     () =>
       legalCards.filter(
         (card) =>
-          isEquipmentCard(card) && !isWeaponCard(card) && !isTokenCard(card),
+          isEquipmentCard(card) &&
+          !isWeaponCard(card) &&
+          !isTokenLikeCard(card),
       ),
     [legalCards],
   );
@@ -430,13 +435,13 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
           isMainDeckCard(card) &&
           !isWeaponCard(card) &&
           !isEquipmentCard(card) &&
-          !isTokenCard(card),
+          !isTokenLikeCard(card),
       ),
     [legalCards],
   );
 
   const legalTokens = useMemo(
-    () => legalCards.filter((card) => isTokenCard(card)),
+    () => legalCards.filter((card) => isTokenLikeCard(card)),
     [legalCards],
   );
 
@@ -451,13 +456,13 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
         ({ card }) =>
           isMainDeckCard(card) &&
           !isEquipmentOrWeapon(card) &&
-          !isTokenCard(card),
+          !isTokenLikeCard(card),
       ),
     [selectedCards],
   );
 
   const selectedTokens = useMemo(
-    () => selectedCards.filter(({ card }) => isTokenCard(card)),
+    () => selectedCards.filter(({ card }) => isTokenLikeCard(card)),
     [selectedCards],
   );
 
@@ -525,11 +530,14 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
         card,
       );
       const currentCardQty = countForCard(current.cards, card.id);
+      const normalizedNextQuantity = isTokenLikeCard(card)
+        ? Math.min(nextQuantity, 1)
+        : nextQuantity;
       const maxCopies = getCopyLimitForCard(card, current.format);
 
       if (Number.isFinite(maxCopies)) {
         const nextUniqueTotal =
-          currentUniqueCopies - currentCardQty + nextQuantity;
+          currentUniqueCopies - currentCardQty + normalizedNextQuantity;
         if (nextUniqueTotal > maxCopies) {
           return current;
         }
@@ -537,14 +545,14 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
 
       return {
         ...current,
-        cards: withQuantity(current.cards, card.id, nextQuantity),
+        cards: withQuantity(current.cards, card.id, normalizedNextQuantity),
       };
     });
   };
 
   const canIncrement = (card: Card) => {
-    if (isTokenCard(card)) {
-      return true;
+    if (isTokenLikeCard(card)) {
+      return countForCard(deck.cards, card.id) < 1;
     }
 
     const maxCopies = getCopyLimitForCard(card, deck.format);
@@ -594,7 +602,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
     setStatus(null);
 
     try {
-      if (!userId) {
+      if (!user) {
         saveGuestDeck({
           ...deck,
           id: deck.id || `guest-${crypto.randomUUID()}`,
@@ -604,12 +612,17 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
         return;
       }
 
+      if (!idToken) {
+        setStatus("Authentication is still loading. Please try again.");
+        return;
+      }
+
       const method = deckId ? "PUT" : "POST";
       const response = await fetch("/api/decks", {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId,
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
         },
         body: JSON.stringify(deck),
       });
@@ -802,7 +815,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   />
                 </p>
 
-                {userId ? (
+                {user ? (
                   <p className="field-row">
                     <label htmlFor="deck-visibility">Visibility</label>
                     <select
@@ -825,14 +838,29 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                   </p>
                 )}
 
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
-                  {isSaving ? "Saving..." : "Save Deck"}
-                </button>
+                <div className="card-item-actions">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? "Saving..." : "Save Deck"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setDeck((current) => ({
+                        ...current,
+                        cards: [],
+                      }))
+                    }
+                    disabled={isSaving || deck.cards.length === 0}
+                  >
+                    Clear Deck
+                  </button>
+                </div>
 
                 {status ? <p className="form-message">{status}</p> : null}
 

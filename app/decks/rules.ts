@@ -40,6 +40,23 @@ export function isTokenCard(card: Card) {
   return card.types.includes("Token");
 }
 
+export function isTokenLikeCard(card: Card) {
+  if (isTokenCard(card) || card.rarity === "Token") {
+    return true;
+  }
+
+  if (card.rarity !== "Basic") {
+    return false;
+  }
+
+  // Basic rarity heroes must still be excluded from inventory logic.
+  if (isHeroCard(card)) {
+    return false;
+  }
+
+  return !isMainDeckCard(card);
+}
+
 export function isEquipmentOrWeapon(card: Card) {
   return card.types.includes("Equipment") || card.types.includes("Weapon");
 }
@@ -99,8 +116,8 @@ export function isCardAllowedForDeck(
 }
 
 export function getCopyLimitForCard(card: Card, format: DeckFormat) {
-  if (isTokenCard(card)) {
-    return Number.POSITIVE_INFINITY;
+  if (isTokenLikeCard(card)) {
+    return 1;
   }
 
   if (isEquipmentOrWeapon(card)) {
@@ -166,11 +183,11 @@ export function validateDeck(
       errors.push(`${card.name} is not legal for this hero or format.`);
     }
 
-    if (!isTokenCard(card)) {
+    if (!isTokenLikeCard(card)) {
       inventoryEntries.push(entry);
     }
 
-    if (isMainDeckCard(card) && !isTokenCard(card)) {
+    if (isMainDeckCard(card) && !isTokenLikeCard(card)) {
       mainDeckEntries.push(entry);
     }
 

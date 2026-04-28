@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CardImage from "./card-image";
+import { useAuthSession } from "@/app/auth/session-provider";
 import type {
   Card,
   CardColor,
@@ -78,6 +79,7 @@ export default function CardActions({
   card,
   deleteRedirectTo,
 }: CardActionsProps) {
+  const { idToken, isAdmin, loading } = useAuthSession();
   const router = useRouter();
   const [formState, setFormState] = useState<CardEditState>(
     initialStateFromCard(card),
@@ -87,6 +89,12 @@ export default function CardActions({
   const [message, setMessage] = useState<string | null>(null);
 
   const id = card.id;
+
+  if (!loading && !isAdmin) {
+    return (
+      <p className="form-message">Only admins can edit or delete cards.</p>
+    );
+  }
 
   const updateAbility = (index: number, value: string) => {
     setFormState((current) => ({
@@ -135,6 +143,16 @@ export default function CardActions({
   };
 
   const handleUpdate = async () => {
+    if (!isAdmin) {
+      setMessage("Only admins can update cards.");
+      return;
+    }
+
+    if (!idToken) {
+      setMessage("Sign in again to continue.");
+      return;
+    }
+
     if (!formState.name.trim()) {
       setMessage("Name is required for update.");
       return;
@@ -197,6 +215,7 @@ export default function CardActions({
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -216,6 +235,16 @@ export default function CardActions({
   };
 
   const handleDelete = async () => {
+    if (!isAdmin) {
+      setMessage("Only admins can delete cards.");
+      return;
+    }
+
+    if (!idToken) {
+      setMessage("Sign in again to continue.");
+      return;
+    }
+
     const confirmed = window.confirm("Delete this card?");
     if (!confirmed) {
       return;
@@ -227,6 +256,9 @@ export default function CardActions({
     try {
       const response = await fetch(`/api/cards?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
       });
 
       if (!response.ok) {

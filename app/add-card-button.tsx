@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthSession } from "@/app/auth/session-provider";
 import type {
   Card,
   CardColor,
@@ -65,11 +66,16 @@ type AddCardButtonProps = {
 export default function AddCardButton({
   successRedirectTo,
 }: AddCardButtonProps) {
+  const { idToken, isAdmin, loading } = useAuthSession();
   const [formState, setFormState] = useState<CardFormState>(INITIAL_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
+
+  if (!loading && !isAdmin) {
+    return <p className="form-message">Only admins can add cards.</p>;
+  }
 
   const updateAbility = (index: number, value: string) => {
     setFormState((current) => ({
@@ -119,6 +125,16 @@ export default function AddCardButton({
 
   const handleAddCard = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isAdmin) {
+      setMessage("Only admins can add cards.");
+      return;
+    }
+
+    if (!idToken) {
+      setMessage("Sign in again to continue.");
+      return;
+    }
 
     if (!formState.name.trim()) {
       setMessage("Card name is required.");
@@ -185,6 +201,7 @@ export default function AddCardButton({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify(payload),
       });

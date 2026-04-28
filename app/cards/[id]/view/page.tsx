@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import CardImage from "../../../card-image";
 import {
@@ -7,6 +6,7 @@ import {
   getCardNavigation,
   normalizeFieldValue,
 } from "../../_lib";
+import ViewCardActions from "./view-card-actions";
 import {
   renderTokenizedInlineText,
   type InlineTokenMap,
@@ -221,28 +221,13 @@ export default async function ViewCardPage({ params }: ViewCardPageProps) {
           ) : null}
         </div>
       </div>
-      <div className="card-item-actions">
-        <Link
-          href={previousViewHref}
-          className="btn btn-secondary"
-          aria-disabled={!navigation.previousId}
-        >
-          Prev
-        </Link>
-        <Link
-          href={nextViewHref}
-          className="btn btn-secondary"
-          aria-disabled={!navigation.nextId}
-        >
-          Next
-        </Link>
-        <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary">
-          Edit
-        </Link>
-        <Link href="/cards/add" className="btn btn-primary">
-          Add a Card
-        </Link>
-      </div>
+      <ViewCardActions
+        previousViewHref={previousViewHref}
+        nextViewHref={nextViewHref}
+        hasPrevious={Boolean(navigation.previousId)}
+        hasNext={Boolean(navigation.nextId)}
+        cardId={card.id}
+      />
     </section>
   );
 }

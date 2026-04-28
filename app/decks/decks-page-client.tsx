@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getClientUserId } from "./auth-client";
+import { useAuthSession } from "@/app/auth/session-provider";
 import { clearGuestDecks, deleteGuestDeck, loadGuestDecks } from "./storage";
 import type { DeckRecord, GuestDeckRecord } from "./types";
 
@@ -13,15 +13,15 @@ function isGuestDeck(deck: SavedDeck): deck is GuestDeckRecord {
 }
 
 export default function DecksPageClient() {
-  const [userId] = useState<string | null>(() => getClientUserId());
+  const { user, idToken } = useAuthSession();
   const [dbDecks, setDbDecks] = useState<DeckRecord[]>([]);
   const [guestDecks, setGuestDecks] = useState<GuestDeckRecord[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
-  const loadDecks = async (currentUserId: string | null) => {
+  const loadDecks = async (token: string | null) => {
     try {
       const response = await fetch("/api/decks", {
-        headers: currentUserId ? { "x-user-id": currentUserId } : undefined,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         cache: "no-store",
       });
 
@@ -43,11 +43,12 @@ export default function DecksPageClient() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadDecks(userId);
-  }, [userId]);
+    void loadDecks(idToken ?? null);
+  }, [idToken]);
 
   const migrateGuestDecks = async () => {
-    if (!userId) {
+    if (!user || !idToken) {
+      setMessage("Sign in to migrate guest decks.");
       return;
     }
 
@@ -63,7 +64,7 @@ export default function DecksPageClient() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user-id": userId,
+            Authorization: `Bearer ${idToken}`,
           },
           body: JSON.stringify(deck),
         });
@@ -72,7 +73,7 @@ export default function DecksPageClient() {
       clearGuestDecks();
       setGuestDecks([]);
       setMessage("Guest decks migrated to your account.");
-      await loadDecks(userId);
+      await loadDecks(idToken);
     } catch (error) {
       console.error("Failed to migrate guest decks", error);
       setMessage("Unable to migrate guest decks.");
@@ -95,7 +96,7 @@ export default function DecksPageClient() {
         `/api/decks?id=${encodeURIComponent(deck.id)}`,
         {
           method: "DELETE",
-          headers: userId ? { "x-user-id": userId } : undefined,
+          headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
         },
       );
 
@@ -103,10 +104,38 @@ export default function DecksPageClient() {
         throw new Error("Delete failed");
       }
 
-      await loadDecks(userId);
+      await loadDecks(idToken ?? null);
     } catch (error) {
       console.error("Failed to delete deck", error);
       setMessage("Unable to delete deck.");
+    }
+  };
+
+  const copyDeck = async (deck: DeckRecord) => {
+    if (!idToken) {
+      setMessage("Sign in to copy decks.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/decks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ sourceDeckId: deck.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Copy failed");
+      }
+
+      await loadDecks(idToken);
+      setMessage(`Copied \"${deck.name}\" to your account.`);
+    } catch (error) {
+      console.error("Failed to copy deck", error);
+      setMessage("Unable to copy deck.");
     }
   };
 
@@ -126,7 +155,7 @@ export default function DecksPageClient() {
 
       {message ? <p className="form-message">{message}</p> : null}
 
-      {userId && guestDecks.length > 0 ? (
+      {user && guestDecks.length > 0 ? (
         <button
           type="button"
           className="btn btn-secondary"
@@ -134,6 +163,12 @@ export default function DecksPageClient() {
         >
           Save Guest Decks To Account
         </button>
+      ) : null}
+
+      {!user && guestDecks.length > 0 ? (
+        <p className="form-message">
+          Sign in to migrate browser decks to your account.
+        </p>
       ) : null}
 
       {allDecks.length === 0 ? (
@@ -151,19 +186,40 @@ export default function DecksPageClient() {
               </p>
               <p>Visibility: {deck.visibility}</p>
               <div className="card-item-actions">
-                <Link
-                  href={`/decks/${deck.id}/edit`}
-                  className="btn btn-secondary"
-                >
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => void removeDeck(deck)}
-                >
-                  Delete
-                </button>
+                {isGuestDeck(deck) || deck.ownerId === user?.uid ? (
+                  <>
+                    <Link
+                      href={`/decks/${deck.id}/edit`}
+                      className="btn btn-secondary"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => void removeDeck(deck)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={`/decks/${deck.id}/edit`}
+                      className="btn btn-secondary"
+                    >
+                      View
+                    </Link>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => void copyDeck(deck)}
+                      disabled={!user}
+                    >
+                      Copy
+                    </button>
+                  </>
+                )}
               </div>
             </li>
           ))}

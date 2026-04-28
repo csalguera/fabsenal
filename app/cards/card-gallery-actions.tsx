@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthSession } from "@/app/auth/session-provider";
 
 type CardGalleryActionsProps = {
   id: string;
@@ -10,6 +11,7 @@ type CardGalleryActionsProps = {
 
 export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
   const router = useRouter();
+  const { idToken, isAdmin } = useAuthSession();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -23,6 +25,7 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
     try {
       const response = await fetch(`/api/cards?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
+        headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
       });
 
       if (!response.ok) {
@@ -41,17 +44,21 @@ export default function CardGalleryActions({ id }: CardGalleryActionsProps) {
       <Link href={`/cards/${id}/view`} className="btn btn-secondary">
         View
       </Link>
-      <Link href={`/cards/${id}/edit`} className="btn btn-secondary">
-        Edit
-      </Link>
-      <button
-        type="button"
-        className="btn btn-danger"
-        onClick={handleDelete}
-        disabled={isDeleting}
-      >
-        {isDeleting ? "Deleting..." : "Delete"}
-      </button>
+      {isAdmin ? (
+        <>
+          <Link href={`/cards/${id}/edit`} className="btn btn-secondary">
+            Edit
+          </Link>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }
