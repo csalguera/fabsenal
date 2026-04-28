@@ -888,6 +888,10 @@ textarea:focus {
   border: 1px solid rgba(202, 165, 74, 0.18);
 }
 
+.deck-builder-legal-pane {
+  --deck-legal-grid-min-height: 360px;
+}
+
 .deck-pane-header {
   display: flex;
   justify-content: space-between;
@@ -907,6 +911,7 @@ textarea:focus {
 
 .deck-legal-section {
   display: grid;
+  grid-template-rows: auto minmax(var(--deck-legal-grid-min-height), auto) auto;
   gap: 0.55rem;
   padding-top: 0.35rem;
   border-top: 1px solid rgba(202, 165, 74, 0.12);
@@ -936,10 +941,26 @@ textarea:focus {
 
 .deck-image-grid-legal-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: var(--deck-legal-grid-min-height);
+  align-content: start;
 }
 
 .deck-image-grid-legal-main {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: var(--deck-legal-grid-min-height);
+  align-content: start;
+}
+
+.deck-legal-empty-state {
+  min-height: var(--deck-legal-grid-min-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.deck-legal-empty-state .empty-state {
+  margin: 0;
 }
 
 .deck-card-modal-backdrop {
@@ -1267,6 +1288,10 @@ img {
   .deck-pane-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .deck-builder-legal-pane {
+    --deck-legal-grid-min-height: 260px;
   }
 
   .deck-legal-section-header {

@@ -1184,68 +1184,71 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                       autoComplete="off"
                     />
                   </div>
-                  <div className="deck-image-grid deck-image-grid-legal-row">
-                    {pagedWeapons.items.map((card) => {
-                      const qty = countForCard(deck.cards, card.id);
-                      const canAdd = canIncrement(card);
-                      const canRemove = canDecrement(card);
+                  {pagedWeapons.items.length > 0 ? (
+                    <div className="deck-image-grid deck-image-grid-legal-row">
+                      {pagedWeapons.items.map((card) => {
+                        const qty = countForCard(deck.cards, card.id);
+                        const canAdd = canIncrement(card);
+                        const canRemove = canDecrement(card);
 
-                      return (
-                        <div
-                          key={`legal-weapon-${card.id}`}
-                          className="deck-image-card deck-image-card-static"
-                        >
-                          <button
-                            type="button"
-                            className="deck-image-card-media-button"
-                            onClick={() => openCardModal(card)}
+                        return (
+                          <div
+                            key={`legal-weapon-${card.id}`}
+                            className="deck-image-card deck-image-card-static"
                           >
-                            <div className="deck-image-card-media">
-                              <CardImage
-                                src={card.imageUrl || "/file.svg"}
-                                alt={card.name}
-                                width={140}
-                                height={210}
-                                className="deck-image deck-image-legal"
-                              />
+                            <button
+                              type="button"
+                              className="deck-image-card-media-button"
+                              onClick={() => openCardModal(card)}
+                            >
+                              <div className="deck-image-card-media">
+                                <CardImage
+                                  src={card.imageUrl || "/file.svg"}
+                                  alt={card.name}
+                                  width={140}
+                                  height={210}
+                                  className="deck-image deck-image-legal"
+                                />
+                              </div>
+                            </button>
+                            <div className="deck-image-card-body">
+                              <strong>{card.name}</strong>
+                              <span>{getCardSubtitle(card)}</span>
                             </div>
-                          </button>
-                          <div className="deck-image-card-body">
-                            <strong>{card.name}</strong>
-                            <span>{getCardSubtitle(card)}</span>
+                            <div className="deck-image-card-actions">
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() =>
+                                  updateQuantity(card, Math.max(0, qty - 1))
+                                }
+                                disabled={!canRemove}
+                                aria-disabled={!canRemove}
+                                aria-label={`Decrease ${card.name}`}
+                              >
+                                -
+                              </button>
+                              <span className="deck-qty-value">{qty}</span>
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() => updateQuantity(card, qty + 1)}
+                                disabled={!canAdd}
+                                aria-disabled={!canAdd}
+                                aria-label={`Increase ${card.name}`}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
-                          <div className="deck-image-card-actions">
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() =>
-                                updateQuantity(card, Math.max(0, qty - 1))
-                              }
-                              disabled={!canRemove}
-                              aria-disabled={!canRemove}
-                              aria-label={`Decrease ${card.name}`}
-                            >
-                              -
-                            </button>
-                            <span className="deck-qty-value">{qty}</span>
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() => updateQuantity(card, qty + 1)}
-                              disabled={!canAdd}
-                              aria-disabled={!canAdd}
-                              aria-label={`Increase ${card.name}`}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {pagedWeapons.items.length === 0 ? (
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="deck-legal-empty-state">
                       <p className="empty-state">No weapon cards found.</p>
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                   <div className="deck-section-pagination">
                     <button
                       type="button"
@@ -1288,68 +1291,71 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                       autoComplete="off"
                     />
                   </div>
-                  <div className="deck-image-grid deck-image-grid-legal-row">
-                    {pagedEquipment.items.map((card) => {
-                      const qty = countForCard(deck.cards, card.id);
-                      const canAdd = canIncrement(card);
-                      const canRemove = canDecrement(card);
+                  {pagedEquipment.items.length > 0 ? (
+                    <div className="deck-image-grid deck-image-grid-legal-row">
+                      {pagedEquipment.items.map((card) => {
+                        const qty = countForCard(deck.cards, card.id);
+                        const canAdd = canIncrement(card);
+                        const canRemove = canDecrement(card);
 
-                      return (
-                        <div
-                          key={`legal-equipment-${card.id}`}
-                          className="deck-image-card deck-image-card-static"
-                        >
-                          <button
-                            type="button"
-                            className="deck-image-card-media-button"
-                            onClick={() => openCardModal(card)}
+                        return (
+                          <div
+                            key={`legal-equipment-${card.id}`}
+                            className="deck-image-card deck-image-card-static"
                           >
-                            <div className="deck-image-card-media">
-                              <CardImage
-                                src={card.imageUrl || "/file.svg"}
-                                alt={card.name}
-                                width={140}
-                                height={210}
-                                className="deck-image deck-image-legal"
-                              />
+                            <button
+                              type="button"
+                              className="deck-image-card-media-button"
+                              onClick={() => openCardModal(card)}
+                            >
+                              <div className="deck-image-card-media">
+                                <CardImage
+                                  src={card.imageUrl || "/file.svg"}
+                                  alt={card.name}
+                                  width={140}
+                                  height={210}
+                                  className="deck-image deck-image-legal"
+                                />
+                              </div>
+                            </button>
+                            <div className="deck-image-card-body">
+                              <strong>{card.name}</strong>
+                              <span>{getCardSubtitle(card)}</span>
                             </div>
-                          </button>
-                          <div className="deck-image-card-body">
-                            <strong>{card.name}</strong>
-                            <span>{getCardSubtitle(card)}</span>
+                            <div className="deck-image-card-actions">
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() =>
+                                  updateQuantity(card, Math.max(0, qty - 1))
+                                }
+                                disabled={!canRemove}
+                                aria-disabled={!canRemove}
+                                aria-label={`Decrease ${card.name}`}
+                              >
+                                -
+                              </button>
+                              <span className="deck-qty-value">{qty}</span>
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() => updateQuantity(card, qty + 1)}
+                                disabled={!canAdd}
+                                aria-disabled={!canAdd}
+                                aria-label={`Increase ${card.name}`}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
-                          <div className="deck-image-card-actions">
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() =>
-                                updateQuantity(card, Math.max(0, qty - 1))
-                              }
-                              disabled={!canRemove}
-                              aria-disabled={!canRemove}
-                              aria-label={`Decrease ${card.name}`}
-                            >
-                              -
-                            </button>
-                            <span className="deck-qty-value">{qty}</span>
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() => updateQuantity(card, qty + 1)}
-                              disabled={!canAdd}
-                              aria-disabled={!canAdd}
-                              aria-label={`Increase ${card.name}`}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {pagedEquipment.items.length === 0 ? (
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="deck-legal-empty-state">
                       <p className="empty-state">No equipment cards found.</p>
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                   <div className="deck-section-pagination">
                     <button
                       type="button"
@@ -1394,71 +1400,74 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                       autoComplete="off"
                     />
                   </div>
-                  <div className="deck-image-grid deck-image-grid-legal-main">
-                    {pagedMainDeck.items.map((card) => {
-                      const qty = countForCard(deck.cards, card.id);
-                      const canAdd = canIncrement(card);
-                      const canRemove = canDecrement(card);
+                  {pagedMainDeck.items.length > 0 ? (
+                    <div className="deck-image-grid deck-image-grid-legal-main">
+                      {pagedMainDeck.items.map((card) => {
+                        const qty = countForCard(deck.cards, card.id);
+                        const canAdd = canIncrement(card);
+                        const canRemove = canDecrement(card);
 
-                      return (
-                        <div
-                          key={`legal-main-${card.id}`}
-                          className="deck-image-card deck-image-card-static"
-                        >
-                          <button
-                            type="button"
-                            className="deck-image-card-media-button"
-                            onClick={() => openCardModal(card)}
+                        return (
+                          <div
+                            key={`legal-main-${card.id}`}
+                            className="deck-image-card deck-image-card-static"
                           >
-                            <div className="deck-image-card-media">
-                              <CardImage
-                                src={card.imageUrl || "/file.svg"}
-                                alt={card.name}
-                                width={140}
-                                height={210}
-                                className="deck-image deck-image-legal"
-                              />
+                            <button
+                              type="button"
+                              className="deck-image-card-media-button"
+                              onClick={() => openCardModal(card)}
+                            >
+                              <div className="deck-image-card-media">
+                                <CardImage
+                                  src={card.imageUrl || "/file.svg"}
+                                  alt={card.name}
+                                  width={140}
+                                  height={210}
+                                  className="deck-image deck-image-legal"
+                                />
+                              </div>
+                            </button>
+                            <div className="deck-image-card-body">
+                              <strong>
+                                {card.name}
+                                {card.color ? ` (${card.color})` : ""}
+                              </strong>
+                              <span>{getCardSubtitle(card)}</span>
                             </div>
-                          </button>
-                          <div className="deck-image-card-body">
-                            <strong>
-                              {card.name}
-                              {card.color ? ` (${card.color})` : ""}
-                            </strong>
-                            <span>{getCardSubtitle(card)}</span>
+                            <div className="deck-image-card-actions">
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() =>
+                                  updateQuantity(card, Math.max(0, qty - 1))
+                                }
+                                disabled={!canRemove}
+                                aria-disabled={!canRemove}
+                                aria-label={`Decrease ${card.name}`}
+                              >
+                                -
+                              </button>
+                              <span className="deck-qty-value">{qty}</span>
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() => updateQuantity(card, qty + 1)}
+                                disabled={!canAdd}
+                                aria-disabled={!canAdd}
+                                aria-label={`Increase ${card.name}`}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
-                          <div className="deck-image-card-actions">
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() =>
-                                updateQuantity(card, Math.max(0, qty - 1))
-                              }
-                              disabled={!canRemove}
-                              aria-disabled={!canRemove}
-                              aria-label={`Decrease ${card.name}`}
-                            >
-                              -
-                            </button>
-                            <span className="deck-qty-value">{qty}</span>
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() => updateQuantity(card, qty + 1)}
-                              disabled={!canAdd}
-                              aria-disabled={!canAdd}
-                              aria-label={`Increase ${card.name}`}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {pagedMainDeck.items.length === 0 ? (
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="deck-legal-empty-state">
                       <p className="empty-state">No main deck cards found.</p>
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                   <div className="deck-section-pagination">
                     <button
                       type="button"
@@ -1501,68 +1510,71 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
                       autoComplete="off"
                     />
                   </div>
-                  <div className="deck-image-grid deck-image-grid-legal-row">
-                    {pagedTokens.items.map((card) => {
-                      const qty = countForCard(deck.cards, card.id);
-                      const canAdd = canIncrement(card);
-                      const canRemove = canDecrement(card);
+                  {pagedTokens.items.length > 0 ? (
+                    <div className="deck-image-grid deck-image-grid-legal-row">
+                      {pagedTokens.items.map((card) => {
+                        const qty = countForCard(deck.cards, card.id);
+                        const canAdd = canIncrement(card);
+                        const canRemove = canDecrement(card);
 
-                      return (
-                        <div
-                          key={`legal-token-${card.id}`}
-                          className="deck-image-card deck-image-card-static"
-                        >
-                          <button
-                            type="button"
-                            className="deck-image-card-media-button"
-                            onClick={() => openCardModal(card)}
+                        return (
+                          <div
+                            key={`legal-token-${card.id}`}
+                            className="deck-image-card deck-image-card-static"
                           >
-                            <div className="deck-image-card-media">
-                              <CardImage
-                                src={card.imageUrl || "/file.svg"}
-                                alt={card.name}
-                                width={140}
-                                height={210}
-                                className="deck-image deck-image-legal"
-                              />
+                            <button
+                              type="button"
+                              className="deck-image-card-media-button"
+                              onClick={() => openCardModal(card)}
+                            >
+                              <div className="deck-image-card-media">
+                                <CardImage
+                                  src={card.imageUrl || "/file.svg"}
+                                  alt={card.name}
+                                  width={140}
+                                  height={210}
+                                  className="deck-image deck-image-legal"
+                                />
+                              </div>
+                            </button>
+                            <div className="deck-image-card-body">
+                              <strong>{card.name}</strong>
+                              <span>{getCardSubtitle(card)}</span>
                             </div>
-                          </button>
-                          <div className="deck-image-card-body">
-                            <strong>{card.name}</strong>
-                            <span>{getCardSubtitle(card)}</span>
+                            <div className="deck-image-card-actions">
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() =>
+                                  updateQuantity(card, Math.max(0, qty - 1))
+                                }
+                                disabled={!canRemove}
+                                aria-disabled={!canRemove}
+                                aria-label={`Decrease ${card.name}`}
+                              >
+                                -
+                              </button>
+                              <span className="deck-qty-value">{qty}</span>
+                              <button
+                                type="button"
+                                className="btn btn-primary deck-qty-btn"
+                                onClick={() => updateQuantity(card, qty + 1)}
+                                disabled={!canAdd}
+                                aria-disabled={!canAdd}
+                                aria-label={`Increase ${card.name}`}
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
-                          <div className="deck-image-card-actions">
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() =>
-                                updateQuantity(card, Math.max(0, qty - 1))
-                              }
-                              disabled={!canRemove}
-                              aria-disabled={!canRemove}
-                              aria-label={`Decrease ${card.name}`}
-                            >
-                              -
-                            </button>
-                            <span className="deck-qty-value">{qty}</span>
-                            <button
-                              type="button"
-                              className="btn btn-primary deck-qty-btn"
-                              onClick={() => updateQuantity(card, qty + 1)}
-                              disabled={!canAdd}
-                              aria-disabled={!canAdd}
-                              aria-label={`Increase ${card.name}`}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {pagedTokens.items.length === 0 ? (
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="deck-legal-empty-state">
                       <p className="empty-state">No token cards found.</p>
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                   <div className="deck-section-pagination">
                     <button
                       type="button"
