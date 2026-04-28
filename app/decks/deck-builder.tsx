@@ -507,7 +507,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
       paginateCards(
         filterBySearch(legalWeapons, legalWeaponsSearch),
         legalWeaponsPage,
-        4,
+        3,
       ),
     [legalWeapons, legalWeaponsSearch, legalWeaponsPage],
   );
@@ -517,7 +517,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
       paginateCards(
         filterBySearch(legalEquipment, legalEquipmentSearch),
         legalEquipmentPage,
-        4,
+        3,
       ),
     [legalEquipment, legalEquipmentSearch, legalEquipmentPage],
   );
@@ -527,7 +527,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
       paginateCards(
         filterBySearch(legalMainDeckCards, legalMainDeckSearch),
         legalMainDeckPage,
-        12,
+        3,
       ),
     [legalMainDeckCards, legalMainDeckSearch, legalMainDeckPage],
   );
@@ -537,7 +537,7 @@ export default function DeckBuilder({ deckId }: DeckBuilderProps) {
       paginateCards(
         filterBySearch(legalTokens, legalTokensSearch),
         legalTokensPage,
-        4,
+        3,
       ),
     [legalTokens, legalTokensSearch, legalTokensPage],
   );
